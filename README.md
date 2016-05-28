@@ -12,13 +12,55 @@ Markers = require('./gulp-markers.js');
 // get a markers container
 var markers = new Markers();
 
+//
 // add markers to the container
 // - marker-name is a string tag that identifies the marker
 // - pattern is a string that will be converted into a RegExp object
 // - replacer is a string or function (like the replacement argument to RegExp.replace())
 // - opts is an object with options
-markers.addMarker('marker-name', '<-- my-HTML-marker -->', replacer, opts);
+//
+markers.addMarker('script-marker', '^\s*<-- my-HTML-script-marker -->\s*$', replacer, opts);
 
+// function to do replacement
+function replacer(match, offset, string) {
+    // insert a script tag on the line after the marker
+    return match + '\n' + '<script src="myscript.js"></script>\n';
+}
+
+//
+// this is a simple substition for the marker. Note the usage of '\\' because it is
+// the string quote character in addition to being the RegExp quote character.
+//
+currentVersionString = '0.1.1';
+markers.addMarker('jsversion-marker', '\\/\\/++ version --\\/\\/', currentVersionString);
+
+//
+// a more complex example to recognize patterns like '//++ context:selector --//'
+//
+markers.addMarker(
+    'marker-with-context',
+    // 1                  2              x   3
+    '^(\\s*)\\/\\/\\+\\+ ([A-Za-z0-9-]+)(?::(.+))* --\\/\\/\\s*$',
+    contextualReplacer
+);
+
+//
+// I use this in conjunction with the gulp-filenames plug-in. gulp-filenames
+// collects the files piped to a given destination in a namespace. I then fetch
+// that namespace and use the selector to filter the files using either glob or regexes.
+//
+// This replacer function doesn't care about the offset and string arguments.
+//
+function contextualReplacer(match,  whitespace, namespace, selector) {
+    var files = filenames.get(namespace);
+    if (!selector) {
+        return files;
+    }
+    // simple selector - file begins with selector.
+    return files.filter(function(f) {
+        return f.indexOf(selector) === 0;
+    });
+}
 
 gulp.src('somefiles')
     .pipe(markers.findMarkers)
@@ -27,6 +69,9 @@ gulp.src('somefiles')
     .gulp.dest('somedest');
 ```
 
+## gulp-markers API ##
+
+TBD
 
 ## Why use gulp-markers ##
 
