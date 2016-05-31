@@ -10,7 +10,7 @@ var FindReplace = require('./findreplace.js');
 // TODO write DOCs
 // TODO make work with streams?
 // TODO provide marker name to replace function.
-var Markers = (function () {
+module.exports = (function () {
     function Markers() {
         this.m = {};
     }
@@ -118,4 +118,3 @@ var Markers = (function () {
     return Markers;
 }());
 
-exports.Markers = Markers;

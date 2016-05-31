@@ -6,7 +6,7 @@ var Transform = require('readable-stream/transform');
 
 function Finder (file, markers) {
     Transform.call(this);
-    this.m = markers;
+    this.markers = markers;
     this.file = file;
 }
 
@@ -18,21 +18,23 @@ util.inherits(Finder, Transform);
 // option to replace on same pass as find.
 Finder.prototype._transform = function (chunk, enc, done) {
     var content = chunk.toString('utf8');
+    var m = this.markers.m;
+    var tags = this.markers.getMarkerTags();
+    var file = this.file;
 
-    var tags = this.getMarkerTags();
     tags.forEach(function (tag) {
-        var matches = content.match(this.m[tag].regexgm);
+        var matches = content.match(m[tag].regexgm);
 
         if (matches) {
-            if (!this.m[tag].files[file.path]) {
-                this.m[tag].files[file.path] = {};
+            if (!m[tag].files[file.path]) {
+                m[tag].files[file.path] = {};
             }
             // TODO I don't think this is needed except for debugging
             var decoded = matches.map(match => {
                 var res = m[tag].regexm.exec(match);
                 return {match: res[0], groups: res.slice(1)};
             });
-            this.m[tag].files[file.path] = decoded;
+            m[tag].files[file.path] = decoded;
         }
     });
     done(null, file);
