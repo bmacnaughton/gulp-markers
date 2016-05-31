@@ -65,7 +65,7 @@ var Markers = (function () {
                     // the full path as the index and the pattern as the value.
                     // use .match so groups are not captured - this should
                     // speed up the first pass of finding the markers. then
-                    // use only the 'm' flag on the regex to extract the groups
+                    // use only the 'm' flag with RegExp.exec to extract the groups
                     // from each item found.
                     // TODO if sequenced correctly this could do replacements too.
                     tags.forEach(function (tag) {

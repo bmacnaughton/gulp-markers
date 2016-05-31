@@ -49,7 +49,8 @@ markers.addMarker(
 // collects the files piped to a given destination in a namespace. I then fetch
 // that namespace and use the selector to filter the files using either glob or regexes.
 //
-// This replacer function doesn't care about the offset and string arguments.
+// This replacer function doesn't care about the offset and string arguments so it ignores
+// them in the declaration.
 //
 function contextualReplacer(match,  whitespace, namespace, selector) {
     var files = filenames.get(namespace);
