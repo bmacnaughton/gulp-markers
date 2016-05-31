@@ -1,5 +1,6 @@
 "use strict";
-var through = require('through2');
+var Transform = require('readable-stream/transform');
+var FindReplace = require('./findreplace.js');
 //
 // identifies replacement markers in files and processes them using
 // supplied functions.
@@ -50,94 +51,69 @@ var Markers = (function () {
 
     // this is the gulp .pipe processor to find markers in files
     Markers.prototype.findMarkers = function (file, enc, callback) {
-        var tags = this.getMarkerTags();
-        var m = this.m;
-        var findMarkers = function (file, enc, callback) {
-            if (file.isNull()) {
-                return callback(null, file);
-            }
-            function findMarkers() {
-                if (file.isStream()) {
-                    throw "Markers.findMarkers is not implemented for streams";
-                } else if (file.isBuffer()) {
-                    var text = String(file.contents);
-                    // if the pattern is found add this to the files array. use
-                    // the full path as the index and the pattern as the value.
-                    // use .match so groups are not captured - this should
-                    // speed up the first pass of finding the markers. then
-                    // use only the 'm' flag with RegExp.exec to extract the groups
-                    // from each item found.
-                    // TODO if sequenced correctly this could do replacements too.
-                    tags.forEach(function (tag) {
-                        var matches = text.match(m[tag].regexgm);
+        var self = this;
 
-                        if (matches) {
-                            if (!m[tag].files[file.path]) {
-                                m[tag].files[file.path] = {};
-                            }
-                            // TODO I don't think this is needed except for debugging
-                            var decoded = matches.map(match => {
-                                var res = m[tag].regexm.exec(match);
-                                return {match: res[0], groups: res.slice(1)};
-                            });
-                            m[tag].files[file.path] = decoded;
-                        }
+        return new Transform({
+            objectMode: true,
+            transform: function (file, enc, callback) {
+                var finder = new FindReplace.Finder(file, self);
+                if (file.isBuffer()) {
+                    finder.write(file.contents);
+                    finder.end();
+                    var contents = new Buffer(0);
+                    finder.on('data', function(data) {
+                        contents = Buffer.concat([contents, data]);
                     });
+                    finder.once('end', function() {
+                        file.contents = contents;
+                        callback(null, file);
+                    });
+                    return;
                 }
-                callback(null, file);
-            }
-            findMarkers();
-        };
-        return through.obj(findMarkers);
-    };
 
-    // this is the gulp .pipe processor to replace/insert text for markers.
+                if (file.isStream()) {
+                    file.contents = file.contents.pipe(finder);
+                }
+
+                callback(null, file);
+
+
+            }
+        });
+    }
+
+    // this is the gulp .pipe processor to replace markers in files
     Markers.prototype.replaceMarkers = function (file, enc, callback) {
-        var tags = this.getMarkerTags();
-        var m = this.m;
-        var replaceMarkers = function (file, enc, callback) {
-            if (file.isNull()) {
-                return callback(null, file);
-            }
-            function replaceMarkers() {
-                if (file.isStream()) {
-                    throw "Markers.replaceMarkers is not implemented for streams";
-                } else if (file.isBuffer()) {
-                    var text = String(file.contents);
-                    // go through each tag using the supplied regex with the 'gm'
-                    // flags so RegExp.exec can be used to iterate over each match
-                    // in this file.
-                    tags.forEach(function (tag) {
-                        // if this tag wants access to the file information pass it
-                        // as the first argument (in front of string.replace arguments).
-                        var context = {
-                            tag: tag,
-                            data: m[tag].data,
-                            file: {cwd: file.cwd, base: file.base, path: file.path}
-                        };
-                        var replacer;
-                        if (m[tag].replace instanceof String) {
-                            replacer = m[tag].replace;
-                        } else {
-                            replacer = function() {
-                                var args = Array.prototype.slice.call(arguments);
-                                args.unshift(context);
-                                return m[tag].replace.apply(null, args);
-                            }
-                        }
+        var self = this;
 
-                        text = text.replace(m[tag].regexgm, replacer);
+        return new Transform({
+            objectMode: true,
+            transform: function (file, enc, callback) {
+                var finder = new FindReplace.Replacer(file, self);
+                if (file.isBuffer()) {
+                    finder.write(file.contents);
+                    finder.end();
+                    var contents = new Buffer(0);
+                    finder.on('data', function(data) {
+                        contents = Buffer.concat([contents, data]);
                     });
-                    // set the file contents as modified.
-                    file.contents = new Buffer(text);
+                    finder.once('end', function() {
+                        file.contents = contents;
+                        callback(null, file);
+                    });
+                    return;
                 }
-                callback(null, file);
-            }
-            replaceMarkers();
-        };
-        return through.obj(replaceMarkers);
-    };
 
+                if (file.isStream()) {
+                    file.contents = file.contents.pipe(finder);
+                }
+
+                callback(null, file);
+
+
+            }
+        });
+    }
 
     return Markers;
 }());

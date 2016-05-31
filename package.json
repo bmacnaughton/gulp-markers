@@ -4,7 +4,7 @@
   "description": "process markers for insertion and replacement",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
   },
   "engines": {
     "node": ">=4.3.1"
-  }
+  },
   "keywords": [
     "gulpplugin",
     "insertion",
@@ -29,6 +29,10 @@
   },
   "homepage": "https://github.com/bmacnaughton/gulp-markers#readme",
   "dependencies": {
-    "through2": "^2.0.1"
+    "readable-stream": "^2.1.4"
+  },
+  "devDependencies": {
+    "mocha": "^2.5.3",
+    "vinyl": "^1.1.1"
   }
 }
