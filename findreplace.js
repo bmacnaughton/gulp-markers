@@ -37,7 +37,8 @@ Finder.prototype._transform = function (chunk, enc, done) {
             m[tag].files[file.path] = decoded;
         }
     });
-    done(null, file);
+    // no transform, but maybe will be
+    done(null, content);
 }
 
 function Replacer (file, markers) {
