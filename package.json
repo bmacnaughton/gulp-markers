@@ -32,7 +32,9 @@
     "readable-stream": "^2.1.4"
   },
   "devDependencies": {
+    "gulp-rename": "^1.2.2",
     "mocha": "^2.5.3",
+    "should": "^9.0.0",
     "vinyl": "^1.1.1"
   }
 }
