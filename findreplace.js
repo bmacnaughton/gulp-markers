@@ -29,7 +29,7 @@ Finder.prototype._transform = function (chunk, enc, done) {
             if (!m[tag].files[file.path]) {
                 m[tag].files[file.path] = {};
             }
-            // TODO I don't think this is needed except for debugging
+            // TODO I don't think the groups are needed except for debugging
             var decoded = matches.map(match => {
                 var res = m[tag].regexm.exec(match);
                 return {match: res[0], groups: res.slice(1)};
