@@ -6,12 +6,11 @@ var path = require('path');
 var File = require('vinyl');
 var should = require('should');
 var assert = require('assert');
-var gulp = require('gulp');
-var rename = require('gulp-rename');
+//var gulp = require('gulp');
+//var rename = require('gulp-rename');
 
 function compare(testdata, expected, stream, done, filename) {
-    stream
-    .once('data', function (file) {
+    stream.once('data', function (file) {
         // write the file is requested
         var p = new Promise(function(resolve, reject) {
             if (filename) {
@@ -26,6 +25,7 @@ function compare(testdata, expected, stream, done, filename) {
         // done when any IO has completed
         p.then(done);
     })
+
     .end(new File({
         base: path.resolve('www'),
         path: path.resolve('www', 'pages', 'index.html'),
@@ -43,7 +43,14 @@ describe('Buffer mode - raw file', function () {
             // a simple replacement of the marker.
             tag: 'html-copyright',
             re: '<!-- insert:html-copyright:(\\d{4}) -->',
-            replace: function(context, match, startYear) {
+            replace: function (context, match, startYear) {
+                var year = new Date().getFullYear();
+                return '<!-- Copyright BAM ' + startYear + '-' + year + ' -->';
+            }
+        }, {
+            tag: 'html-copyright-via-regex',
+            re: new RegExp('<!-- insert:html-copyright-via-regex:(\\d{4}) -->'),
+            replace: function (context, match, startYear) {
                 var year = new Date().getFullYear();
                 return '<!-- Copyright BAM ' + startYear + '-' + year + ' -->';
             }
@@ -181,103 +188,12 @@ describe('Buffer mode - raw file', function () {
         //
         markerDefinitions.forEach(m => markers.addMarker(m));
 
-        var fixture = fs.readFileSync(path.join('test', 'fixture.html'));
-        var expected = fs.readFileSync(path.join('test', 'expected.html'), 'utf8');
+        var fixture = fs.readFileSync(path.join('test', 'fixtures', 'fixture.html'));
+        var expected = fs.readFileSync(path.join('test', 'expected', 'expected.html'), 'utf8');
 
         var stream = markers.replaceMarkers();
 
-        compare(fixture, expected, stream, done, './test/output.html');
+        compare(fixture, expected, stream, done, './test/output/buffer-output.html');
     });
 });
 
-describe('buffer mode - gulp', function() {
-    var markers, markerDefinitions;
-    var tag = 'gulp-bracketed';
-    var src = "./test/output.html";
-    var dest = './test/dump/';
-
-    before(function() {
-        markers = new Markers();
-        markerDefinitions = [
-            {
-            tag: tag,
-            //    1                            2              x   3               4
-            //re: '([ \\t]*)\\/\\/\\+\\+ @begin:([A-Za-z0-9-]+)(?::(\\S+))* --\\/\\/([^]*?)\\/\\/\\+\\+ @end:\\2 --\\/\\/',
-            //    1                    2                  3           4
-            re: '([ \\t]*)<!-- @begin:([A-Za-z0-9-]+)(?::(\\S+))* -->([^]*?)<!-- @end:\\2 -->',
-            // 1: whitespace
-            // 2: task name
-            // 3: selector
-            // 4: body
-            replace: function(context, match) {return match;}
-            }
-        ];
-        markerDefinitions.forEach(m => markers.addMarker(m));
-    });
-
-    it('should find markers with gulp', function (done) {
-        gulp.src(src)
-            .pipe(markers.findMarkers())
-            //.pipe(markers.replaceMarkers())
-            .pipe(gulp.dest(dest))
-            .on('end', function() {
-                done();
-            });
-    });
-
-    it('should find the right number of files and markers', function() {
-        var tags = Object.keys(markers.m);
-        should.equal(tags.length, 1, 'verify one tag');
-        should.exist(markers.m[tag], 'verify correct tag');
-        var files = markers.m[tag].files;
-        should.equal(Object.keys(files).length, 1, 'verify one file');
-        should.exist(files[path.resolve(src)], 'verify correct file');
-        should.equal(files[path.resolve(src)].length, 3, 'verify number of matches');
-    });
-
-    it('find should not change the file', function() {
-        var input = fs.readFileSync(path.resolve(src), 'utf8');
-        var output = fs.readFileSync(path.resolve(path.join(dest, path.basename(src))), 'utf8');
-        should.strictEqual(input, output, 'the output should not be modified');
-    });
-
-    it('should replace markers with gulp', function (done) {
-        gulp.src(src)
-            //.pipe(markers.findMarkers())
-            .pipe(markers.replaceMarkers())
-            .pipe(gulp.dest(dest))
-            .on('end', function() {
-                done();
-            });
-    });
-
-    it('should not change the file using match as replacement', function() {
-        var input = fs.readFileSync(path.resolve(src), 'utf8');
-        var output = fs.readFileSync(path.resolve(path.join(dest, path.basename(src))), 'utf8');
-        should.strictEqual(input, output, 'the output should not be modified');
-    });
-
-    it('should change the file when requested', function(done) {
-        markers = new Markers();
-        markers.addMarker({
-            tag: 'do-replace',
-            //    1                    2                  3           4
-            re: '([ \\t]*)<!-- @begin:([A-Za-z0-9-]+)(?::(\\S+))* -->([^]*?)<!-- @end:\\2 -->',
-            replace: '$1<div><div>some pointless encapsulation</div></div>'
-        });
-        gulp.src(src)
-            .pipe(markers.findMarkers())
-            .pipe(markers.replaceMarkers())
-            .pipe(rename('replaced.html'))
-            .pipe(gulp.dest(dest))
-            .on('end', () => done());
-    });
-
-    it('should change the file as expected', function() {
-        var input = fs.readFileSync(path.resolve(path.join(dest, 'replaced.html')), 'utf8');
-        var output = fs.readFileSync(path.resolve(path.join(dest, 'replaced-expected.html')), 'utf8');
-        should.strictEqual(input, output, 'the output should not be modified');
-
-    })
-
-});

@@ -1,8 +1,8 @@
 {
   "name": "gulp-markers",
-  "version": "0.0.1",
-  "description": "process markers for insertion and replacement",
-  "main": "index.js",
+  "version": "0.0.2",
+  "description": "find and manipulate markers in streams",
+  "main": "./lib/index.js",
   "scripts": {
     "test": "mocha"
   },
