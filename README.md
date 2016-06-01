@@ -1,80 +1,155 @@
 # gulp-markers #
 
-## what does gulp-markers do? ##
+> Find caller-defined patterns in gulp streams and optionally transform them.
 
-gulp-markers finds patterns in gulp streams and transforms them. The patterns and transforms are defined by the user; gulp-markers is just a framework so it can handle a wide range of use cases.
+## Usage
 
-## Usage ##
-
+Install (until I publish in npm) with one of the following two commands:
+```shell
+npm install --save git+https://git@github.com:bmacnaughton/gulp-markers.git
+npm install --save git+ssh://git@github.com:bmacnaughton/gulp-markers.git
 ```
-Markers = require('./gulp-markers.js');
 
-// get a markers container
+Put a marker in a file. I usually make markers comments so editors don't complain about them.
+```html
+<!-- @insert:js-vendor -->
+```
+
+Set up markers in your gulpfile. Create a markers container then add markers to it.
+```javascript
+Markers = require('markers');
+
 var markers = new Markers();
 
-//
-// add markers to the container
-// - marker-name is a string tag that identifies the marker
-// - pattern is a string that will be converted into a RegExp object
-// - replacer is a string or function (like the replacement argument to RegExp.replace())
-// - opts is an object with options
-//
-markers.addMarker('script-marker', '^\s*<-- my-HTML-script-marker -->\s*$', replacer, opts);
+markers.addMarker({
+    tag: 'js-insertions',
+    re: new RegExp(/<!-- @insert:js-vendor -->/),
 
-// function to do replacement
-function replacer(match, offset, string) {
-    // insert a script tag on the line after the marker
-    return match + '\n' + '<script src="myscript.js"></script>\n';
-}
-
-//
-// this is a simple substition for the marker. Note the usage of '\\' because it is
-// the string quote character in addition to being the RegExp quote character.
-//
-currentVersionString = '0.1.1';
-markers.addMarker('jsversion-marker', '\\/\\/++ version --\\/\\/', currentVersionString);
-
-//
-// a more complex example to recognize patterns like '//++ context:selector --//'
-//
-markers.addMarker(
-    'marker-with-context',
-    // 1                  2              x   3
-    '^(\\s*)\\/\\/\\+\\+ ([A-Za-z0-9-]+)(?::(.+))* --\\/\\/\\s*$',
-    contextualReplacer
-);
-
-//
-// I use this in conjunction with the gulp-filenames plug-in. gulp-filenames
-// collects the files piped to a given destination in a namespace. I then fetch
-// that namespace and use the selector to filter the files using either glob or regexes.
-//
-// This replacer function doesn't care about the offset and string arguments so it ignores
-// them in the declaration.
-//
-function contextualReplacer(match,  whitespace, namespace, selector) {
-    var files = filenames.get(namespace);
-    if (!selector) {
-        return files;
+    replace: function(context, match, newline, whitespace, id) {
+        var vendorJSFiles = ['jquery.min.js', 'paper-core.min.js'];
+        var lines = vendorJSFiles.map(f => whitespace + '<script src="' + f + '"></script>');
+        return lines.join('\n');
     }
-    // simple selector - file begins with selector.
-    return files.filter(function(f) {
-        return f.indexOf(selector) === 0;
-    });
-}
-
-gulp.src('somefiles')
-    .pipe(markers.findMarkers)
-    .pipe(markers.replaceMarkers)
-    ...
-    .gulp.dest('somedest');
+});
 ```
 
-## gulp-markers API ##
+Then insert it into a gulp task:
+```javascript
+gulp.task('html-file-task', function() {
+    return gulp.src('my-html-file-path')
+        .pipe(htmlhint())
+        .pipe(htmlhint.reporter())
+        .pipe(markers.findMarkers())
+        .pipe(markers.replaceMarkers())
+        .pipe(gulp.dest('my-dest-path'));
+});
+```
 
-TBD
+With a small tweak to the regex and the replacement function this can handle insertion of multiple categories of script files. Change the regex to capture some groups, most importantly the text following "@insert:". That can be used to determine what js files to insert.
 
-## Why use gulp-markers ##
+```javascript
+var markers = new Markers();
+
+var jsFiles = {
+    "js-vendor": ['jquery.min.js', 'paper-core.min.js'],
+    "js-globals": ['main.js'],
+    "js-application": ['application.js', 'support.js']
+};
+
+markers.addMarker({
+    tag: 'js-insertions',
+    //               1    2                    3
+    re: new RegExp(/(\n?)([ \t]*)<!-- @insert:([A-Za-z0-9-]+) -->/),
+    replace: function(context, match, newline, whitespace, id) {
+        if (!jsFiles[id]) {
+            // no match so don't change anything
+            return match;
+        }
+        var files = jsFiles[id];
+        var lines = files.map(f => whitespace + '<script src="' + f + '"></script>');
+        return lines.join('\n');
+    }
+});
+
+```
+
+One more tweak - use `gulp-filenames` to capture the filenames after all the options have been applied. `optConcat` and `optMinify` are set based on the target being built. Then we'll just change the replace function to fetch the filenames collected and it will insert the separate files or the concatenated single file either of which may or may not have been minified and renamed.
+
+Here's the new replace function:
+```js
+replace: function(context, match, newline, whitespace, id) {
+    var files = filenames.get("framework-js");
+    // do nothing if no replacement
+    if (!files.length) {
+        return match;
+    }
+    var lines = files.map(f => whitespace + '<script src="' + f + '"></script>');
+    return lines.join('\n');
+}
+```
+
+And here's the task that captures the framework files.
+```js
+gulp.task('framework-js', function() {
+    return gulp.src(framework_files)
+        .pipe(gulpif(optConcat, concat(framework_concatname)))
+        .pipe(gulpif(optMinify, uglify({preserveComments: 'some'})))
+        .pipe(gulpif(optMinify, rename({extname: '.min.js'})))
+        .pipe(filenames("framework-js"))
+        .pipe(gulpif(debugging, debug({title: 'framework-js'})))
+        .pipe(gulp.dest(framework_destination));
+});
+
+// run the html task after the previous task completes so the filenames have been captured.
+gulp.task('html-file-task', ['framework-js'], function() {
+    return gulp.src('my-html-file-path')
+        .pipe(htmlhint())
+        .pipe(htmlhint.reporter())
+        .pipe(markers.findMarkers())
+        .pipe(markers.replaceMarkers())
+        .pipe(gulp.dest('my-dest-path'));
+});
+
+```
+
+## What does gulp-markers do? ##
+
+`gulp-markers` finds patterns in gulp streams and transforms them. The patterns and transforms are defined by the user; `gulp-markers` is just a framework; it does nothing more.
+
+## Why use gulp-markers? ##
+
+`gulp-markers` replaces all of the previous tools I was using; it might be able to do the same for you.
+
+I started using `gulp-html-replace` and found it quite useful for many cases, as well as being a very nicely constructed package with excellent testing. But I had situations where I wanted to insert dynamically configured filenames (optionally concatenated and minified) into HTML files and PHP files. And I wanted to encode additional information into the markers so that the insertion functions could be as general as possible.
+
+I now use `gulp-markers` to insert version numbers and licenses, update dates in copyright notices, insert css files, insert JavaScript files, and insert dynamic lists of files captured by gulp-filenames. All into HTML, JavaScript, Python, and PHP files.
+
+The core code for the Transform streams is taken from `gulp-html-replace` so the logic is better tested than it otherwise would be.
+
+## Why not use gulp-markers? ##
+
+You have to write your own regex expressions and replacement functions. It's not as automatic for many common use cases as more specialized tools like `gulp-html-replace`.
+
+Though I use it for my projects, it's received very little real-world use; it's very early. It's the first open-source project that I really intend for others to use.
+
+I haven't implemented streams testing yet - only buffered.
+
+The documentation is still sketchy.
+
+# gulp-markers API
+
+## `var markers = new Markers();`
+Construct an instance of markers.
+
+## `Markers.addMarker(tag, re, replace [opts])`
+This function adds a marker to the instance. There are two signatures: individual arguments and an object form.
+
+#### `tag: string` - is a tag to identify this marker.
+#### `re: RegExp|String` - is a RegExp object or a string that will be used to create a RegExp object.
+#### `replace: Function|String` - this is the same argument as `String.replace()` uses for the replacement.
+#### `opts: Object` - this optional argument provides options
+
+## Why did I create gulp-markers ##
 
 There are many gulp replace solutions that already exist, so why did I end up creating this one? Simply because I wanted one framework to handle all the different use cases I encountered.
 
@@ -84,19 +159,17 @@ I used a number of the many gulp-replace solutions that already exist and yet fo
 
 1. Make no assumptions about marker formats.
 
-    This allows markers to be inserted in any type of file and for them to encode any information required by the use case. The caller specifies string that will be used to recognize markers.
+    This allows markers to be inserted in any type of file and for them to encode any information required by the use case. The caller specifies pattern that will be used to recognize markers.
 
 2. Make no assumption that the substitution is known at marker-recognition time.
 
-    Recognizing markers and performing transforms are separate functions.
+    Recognizing markers and performing transforms are independent functions. Transforms should be able to be performed at marker recognition time but there should be no requirement to do so.
 
 3. Allow insertion or replacement of existing content.
 
-    Markers are defined by you so they can be either a simple pattern or two patterns that bracket content to be replaced.
+    Markers are defined by you so they can be either a single marker or two markers that bracket content to be replaced. This is satisfied by allowing the users to define the patterns used for marker recognition in combination with a replacement function.
 
-4. Enable replacement to occur at marker recognition time.
 
-    While marker recognition and transformation are separate it should be possible to perform transformation when the marker pattern is recognized.
 
 
 

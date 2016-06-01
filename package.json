@@ -17,7 +17,8 @@
     "gulpplugin",
     "insertion",
     "replace",
-    "replacement"
+    "replacement",
+    "inject"
   ],
   "author": {
     "name": "Bruce A. MacNaughton",
