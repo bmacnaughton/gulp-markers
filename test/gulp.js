@@ -5,7 +5,7 @@ var should = require('should');
 var gulp = require('gulp');
 var rename = require('gulp-rename');
 
-describe('testing markers in gulp', function() {
+describe('gulp mode - testing markers', function() {
     var markers, markerDefinitions;
     var tag = 'gulp-bracketed';
     // use the buffered test's output for now
