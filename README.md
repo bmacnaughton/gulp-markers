@@ -120,11 +120,11 @@ gulp.task('html-file-task', ['framework-js'], function() {
 
 ## gulp-markers API
 
-<b><code>Markers()</code></b>
+<h4><b><code>Markers()</code></b></h4>
 
 Constructor for markers.
 
-<b><code>.addMarker(tag, re, replace [, opts])</code></b>
+<h4><b><code>.addMarker(tag, re, replace [, opts])</code></b></h4>
 
 This method adds a marker to the instance. There are two signatures: individual arguments and an object form. In the object form each property of the object is identified by the names below.
 
@@ -146,17 +146,17 @@ The context object contains a tag property - the value is the tag being executed
 
 The opts argument is optional. If present, the options are applied to this marker. The only option currently implemented is `data`. It allows the caller to store any arbitrary data so that it is available to the replace function.
 
-<b><code>.findMarkers(opts)</code></b>
+<h4><b><code>.findMarkers(opts)</code></b></h4>
 
 findMarkers returns a transform stream. No opts are currently implemented.
 
-<b><code>.replaceMarkers(opts)</code></b>
+<h4><b><code>.replaceMarkers(opts)</code></b></h4>
 
 replaceMarkers returns a transform stream. No opts are currently implemented. If you wish to replace the markers without first finding them just use replaceMarkers without first using findMarkers. replaceMarkers may be invoked multiple times.
 
 ## A little background
 
-### Why did I create gulp-markers ##
+### Why did I create gulp-markers? ##
 
 There are many gulp replace solutions that already exist, so why did I end up creating this one? Simply because I wanted one framework to handle all the different use cases I encountered.
 
