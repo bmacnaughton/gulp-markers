@@ -3,7 +3,7 @@
 
 ## What does gulp-markers do? ##
 
-`gulp-markers` uses regular expressions to find markers in gulp file streams and transform them. The markers, regular expressions, and transforms, a string or function, are defined by the user. `gulp-markers` is just a framework; it does nothing more.
+`gulp-markers` uses regular expressions to find markers in gulp file streams and transform them. The markers are defined by regular expressions and transforms are specified by a string or function. Both are defined by the user. `gulp-markers` is just a framework; it does nothing more.
 
 ## Usage
 
@@ -39,13 +39,12 @@ markers.addMarker({
 });
 ```
 
-Then use the markers in a gulp task. Note the find and replace steps.
+Then replace the markers in a gulp task.
 ```javascript
 gulp.task('html-file-task', function() {
     return gulp.src('my-html-file-path')
         .pipe(htmlhint())
         .pipe(htmlhint.reporter())
-        .pipe(markers.findMarkers())
         .pipe(markers.replaceMarkers())
         .pipe(gulp.dest('my-dest-path'));
 });
@@ -111,7 +110,6 @@ gulp.task('html-file-task', ['framework-js'], function() {
     return gulp.src('my-html-file-path')
         .pipe(htmlhint())
         .pipe(htmlhint.reporter())
-        .pipe(markers.findMarkers())
         .pipe(markers.replaceMarkers())
         .pipe(gulp.dest('my-dest-path'));
 });
@@ -148,7 +146,7 @@ The opts argument is optional. If present, the options are applied to this marke
 
 <h4><b><code>.findMarkers(opts)</code></b></h4>
 
-findMarkers returns a transform stream. No opts are currently implemented.
+findMarkers returns a transform stream. No opts are currently implemented. The filenames in which the markers were found can be fetched.
 
 <h4><b><code>.replaceMarkers(opts)</code></b></h4>
 
