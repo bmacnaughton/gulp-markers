@@ -1,39 +1,40 @@
 # gulp-markers #
 
-> Find caller-defined patterns in gulp streams and optionally transform them.
+## What does gulp-markers do? ##
+
+`gulp-markers` uses regular expressions to find markers in gulp file streams and transform them. The markers, regular expressions, and transforms, a string or function, are defined by the user. `gulp-markers` is just a framework; it does nothing more.
 
 ## Usage
 
-Install (until I publish in npm) with one of the following two commands:
+Install with one of the following two commands (until I publish in npm):
 ```shell
 npm install --save git+https://git@github.com:bmacnaughton/gulp-markers.git
 npm install --save git+ssh://git@github.com:bmacnaughton/gulp-markers.git
 ```
 
-Put a marker in a file. I usually make markers comments so editors don't complain about them.
+Put a marker in a file. This example is using a marker in an HTML file. I usually make markers look like comments for the file type so that editors don't complain about them. But it's not a requirement - you define them.
 ```html
 <!-- @insert:js-vendor -->
 ```
 
-Set up markers in your gulpfile. Create a markers container then add markers to it.
+Set up markers in your gulpfile. Create an instance then add markers to it.
 ```javascript
-Markers = require('markers');
+Markers = require('gulp-markers');
 
 var markers = new Markers();
 
 markers.addMarker({
     tag: 'js-insertions',
     re: new RegExp(/<!-- @insert:js-vendor -->/),
-
-    replace: function(context, match, newline, whitespace, id) {
+    replace: function(context, match) {
         var vendorJSFiles = ['jquery.min.js', 'paper-core.min.js'];
-        var lines = vendorJSFiles.map(f => whitespace + '<script src="' + f + '"></script>');
+        var lines = vendorJSFiles.map(f => '<script src="' + f + '"></script>');
         return lines.join('\n');
     }
 });
 ```
 
-Then insert it into a gulp task:
+Then insert use the markers in a gulp task. Note the find and replace steps.
 ```javascript
 gulp.task('html-file-task', function() {
     return gulp.src('my-html-file-path')
@@ -45,7 +46,7 @@ gulp.task('html-file-task', function() {
 });
 ```
 
-With a small tweak to the regex and the replacement function this can handle insertion of multiple categories of script files. Change the regex to capture some groups, most importantly the text following "@insert:". That can be used to determine what js files to insert.
+With a small tweak to the regex and the replacement function this can handle insertion of multiple categories of script files. Change the regex to capture some groups, most importantly the text following "@insert:". That can be used to determine what js files to insert. It is also capturing whitespace so it can align the output. The patterns captured by the groups appear after the first two arguments, context and match.
 
 ```javascript
 var markers = new Markers();
@@ -73,12 +74,12 @@ markers.addMarker({
 
 ```
 
-One more tweak - use `gulp-filenames` to capture the filenames after all the options have been applied. `optConcat` and `optMinify` are set based on the target being built. Then we'll just change the replace function to fetch the filenames collected and it will insert the separate files or the concatenated single file either of which may or may not have been minified and renamed.
+One more tweak - use `gulp-filenames` to capture the filenames after all task-specific build options have been applied. I usually set `optConcat` and `optMinify` based on the target being built. So we'll just change the replace function to fetch the filenames collected rather than using a hardcoded array. That way it will insert the separate files or the concatenated single file either of which may have been minified and renamed and the inserted files will be correct for any target configuration.
 
 Here's the new replace function:
 ```js
 replace: function(context, match, newline, whitespace, id) {
-    var files = filenames.get("framework-js");
+    var files = filenames.get(id);
     // do nothing if no replacement
     if (!files.length) {
         return match;
@@ -88,15 +89,15 @@ replace: function(context, match, newline, whitespace, id) {
 }
 ```
 
-And here's the task that captures the framework files.
+And here's the two tasks to use the new marker.
 ```js
+// this task captures the filenames after all options have been applied.
 gulp.task('framework-js', function() {
     return gulp.src(framework_files)
         .pipe(gulpif(optConcat, concat(framework_concatname)))
         .pipe(gulpif(optMinify, uglify({preserveComments: 'some'})))
         .pipe(gulpif(optMinify, rename({extname: '.min.js'})))
         .pipe(filenames("framework-js"))
-        .pipe(gulpif(debugging, debug({title: 'framework-js'})))
         .pipe(gulp.dest(framework_destination));
 });
 
@@ -112,9 +113,48 @@ gulp.task('html-file-task', ['framework-js'], function() {
 
 ```
 
-## What does gulp-markers do? ##
+## gulp-markers API
 
-`gulp-markers` finds patterns in gulp streams and transforms them. The patterns and transforms are defined by the user; `gulp-markers` is just a framework; it does nothing more.
+<b><code>Markers()</code></b>
+Constructor for markers.
+
+<b><code>.addMarker(tag, re, replace [, opts])</code></b>
+
+This method adds a marker to the instance. There are two signatures: individual arguments and an object form.
+
+#### tag
+
+The tag argument identifies this marker. It will be passed to the replace function as part of the context object.
+
+#### re
+
+The re argument is a RegExp object or a string that will be used to create a RegExp object. This regex is used to find markers in files. Groups defined in the regex will be passed to the replace function. The 'g' and 'm' flags will always be added for String.match() and RegExp.exec() calls.
+
+#### replace
+
+The replace argument is either a string or a function. A string will be used directly in a String.replace() function call. A function will be wrapped so the first argument is a context object, followed by the regular String.replace() function arguments.
+
+The context object contains a tag property - the value is the tag being executed, a data property - the data object specified in the opts property or {} if none, and a file property - the vinyl file properties cwd, base, and path. The context can be used as the replace function chooses.
+
+#### opts
+
+The opts argument is optional. If present, the options are applied to this marker. The only option currently implemented is `data`. It allows the caller to store any arbitrary data so that it is available to the replace function.
+
+<b><code>.findMarkers(opts)</code></b>
+
+findMarkers returns a transform stream. No opts are currently implemented though `{replace: boolean}` is planned. When `{replace: true}` then the replace step will be done at the time as the markers are found.
+
+<b><code>.replaceMarkers(opts)</code></b>
+
+replaceMarkers returns a transform stream. No opts are currently implemented. Once findMarkers has been invoked replaceMarkers may be invoked multiple times; it is not necessary to pipe the gulp streams through findMarkers again.
+
+# A little background
+
+## Why did I create gulp-markers ##
+
+There are many gulp replace solutions that already exist, so why did I end up creating this one? Simply because I wanted one framework to handle all the different use cases I encountered.
+
+I used a number of the many gulp-replace solutions that already exist and yet found myself writing custom solutions to handle various corner cases. I found that many of the things I wanted to do required jumping through hoops to work with existing solutions. So when I started to implement yet another solution I decided to try to implement a relatively generic framework. The goal was to expose a basic API that could be used to handle almost any special case.
 
 ## Why use gulp-markers? ##
 
@@ -136,30 +176,11 @@ I haven't implemented streams testing yet - only buffered.
 
 The documentation is still sketchy.
 
-# gulp-markers API
-
-## `var markers = new Markers();`
-Construct an instance of markers.
-
-## `Markers.addMarker(tag, re, replace [opts])`
-This function adds a marker to the instance. There are two signatures: individual arguments and an object form.
-
-#### `tag: string` - is a tag to identify this marker.
-#### `re: RegExp|String` - is a RegExp object or a string that will be used to create a RegExp object.
-#### `replace: Function|String` - this is the same argument as `String.replace()` uses for the replacement.
-#### `opts: Object` - this optional argument provides options
-
-## Why did I create gulp-markers ##
-
-There are many gulp replace solutions that already exist, so why did I end up creating this one? Simply because I wanted one framework to handle all the different use cases I encountered.
-
-I used a number of the many gulp-replace solutions that already exist and yet found myself writing various custom solutions to handle various corner cases. I found that many of the things I wanted to do required jumping through hoops to work with existing solutions. So when I started to implement yet another solution I decided to try to implement a relatively generic framework. The goal was to expose a basic API that could be used to handle almost any special case.
-
-### Goals ###
+### Design goals for gulp-markers ###
 
 1. Make no assumptions about marker formats.
 
-    This allows markers to be inserted in any type of file and for them to encode any information required by the use case. The caller specifies pattern that will be used to recognize markers.
+    This allows markers to be inserted in any type of file and for them to encode any information required by the use case. The caller specifies the regular expression that will be used to recognize markers.
 
 2. Make no assumption that the substitution is known at marker-recognition time.
 
@@ -169,9 +190,6 @@ I used a number of the many gulp-replace solutions that already exist and yet fo
 
     Markers are defined by you so they can be either a single marker or two markers that bracket content to be replaced. This is satisfied by allowing the users to define the patterns used for marker recognition in combination with a replacement function.
 
+### Special thanks ###
 
-
-
-
-
-
+To Vladimir Kucherenko for `gulp-html-replace`, my inspiration and model for `gulp-markers`.
