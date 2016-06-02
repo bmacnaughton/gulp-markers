@@ -148,11 +148,11 @@ The opts argument is optional. If present, the options are applied to this marke
 
 <b><code>.findMarkers(opts)</code></b>
 
-findMarkers returns a transform stream. No opts are currently implemented though `{replace: boolean}` is planned. When `{replace: true}` then the replace step will be done at the time as the markers are found.
+findMarkers returns a transform stream. No opts are currently implemented.
 
 <b><code>.replaceMarkers(opts)</code></b>
 
-replaceMarkers returns a transform stream. No opts are currently implemented. Once findMarkers has been invoked replaceMarkers may be invoked multiple times; it is not necessary to pipe the gulp streams through findMarkers again.
+replaceMarkers returns a transform stream. No opts are currently implemented. If you wish to replace the markers without first finding them just use replaceMarkers without first using findMarkers. replaceMarkers may be invoked multiple times.
 
 ## A little background
 

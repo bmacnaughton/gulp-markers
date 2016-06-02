@@ -13,62 +13,6 @@ var should = require('should');
 var assert = require('assert');
 var concatStream = require('concat-stream');
 
-function bufferCompare(testdata, expected, stream, done, filename) {
-    stream.once('data', function (file) {
-        // write the file if filename is supplied
-        var p = new Promise(function(resolve, reject) {
-            if (filename) {
-                fs.writeFile(filename, file.contents, err => err ? reject() : resolve());
-            } else {
-                resolve();
-            }
-        });
-
-        (file.isBuffer()).should.be.ok('file must be a buffer');
-        assert.strictEqual(String(file.contents), expected);
-        // done when any IO has completed
-        p.then(done);
-    })
-
-    .end(new File({
-        base: path.resolve('www'),
-        path: path.resolve('www', 'pages', 'index.html'),
-        contents: testdata
-    }));
-}
-
-
-function streamCompare(fixture, expected, stream, done, filename) {
-    var fakeFile = new File({
-        base: path.resolve('www'),
-        path: path.resolve('www', 'pages', 'index.html'),
-        contents: fixture
-    });
-
-    stream.write(fakeFile);
-
-    stream.once('data', function (file) {
-        // write the file if filename is supplied
-        var filedata;
-        function writefile(resolve, reject) {
-            if (filename) {
-                fs.writeFile(filename, filedata, err => err ? reject() : resolve());
-            } else {
-                resolve();
-            }
-        };
-
-        (file.isStream()).should.be.ok('file must be a stream');
-
-        file.contents.pipe(concatStream({encoding: 'string'}, function (data) {
-            filedata = data;
-            var p = new Promise(writefile);
-            should.equal(data, expected, 'stream data should equal expected');
-            p.then(done);
-        }));
-    });
-}
-
 // run the same tests for buffers and streams
 runTests('buffer');
 runTests('stream');
@@ -221,6 +165,63 @@ function jsBracketedReplacement(context, match, whitespace, task, selector, body
 }
 
 
+function bufferCompare(fixture, expected, transform, done, filename) {
+    transform.once('data', function (file) {
+        // write the file if filename is supplied
+        var p = new Promise(function(resolve, reject) {
+            if (filename) {
+                fs.writeFile(filename, file.contents, err => err ? reject() : resolve());
+            } else {
+                resolve();
+            }
+        });
+
+        (file.isBuffer()).should.be.ok('file must be a buffer');
+        assert.strictEqual(String(file.contents), expected);
+        // done when any IO has completed
+        p.then(done);
+    })
+
+    .end(new File({
+        base: path.resolve('www'),
+        path: path.resolve('www', 'pages', 'index.html'),
+        contents: fixture
+    }));
+}
+
+
+function streamCompare(fixture, expected, transform, done, filename) {
+    var fakeFile = new File({
+        base: path.resolve('www'),
+        path: path.resolve('www', 'pages', 'index.html'),
+        contents: fixture
+    });
+
+    transform.write(fakeFile);
+
+    transform.once('data', function (file) {
+        // write the file if filename is supplied
+        var filedata;
+        function writefile(resolve, reject) {
+            if (filename) {
+                fs.writeFile(filename, filedata, err => err ? reject() : resolve());
+            } else {
+                resolve();
+            }
+        };
+
+        (file.isStream()).should.be.ok('file must be a stream');
+
+        file.contents.pipe(concatStream({encoding: 'string'}, function (data) {
+            filedata = data;
+            var p = new Promise(writefile);
+            should.equal(data, expected, 'stream data should equal expected');
+            p.then(done);
+        }));
+    });
+}
+
+function noop(){};
 
 function runTests(type) {
 
@@ -247,27 +248,33 @@ function runTests(type) {
                 }
             );
 
-            //var fixture = fs.readFileSync(path.join('test', 'fixtures', 'fixture.html'));
+            // find the markers. nothing should change.
+            var fixture = reader(path.join('test', 'fixtures', 'fixture.html'));
+            var unchanged = fs.readFileSync(path.join('test', 'fixtures', 'fixture.html'), 'utf8');
+            var transform = markers.findMarkers();
+            compare(fixture, unchanged, transform, noop);
+
+            // reset for replace pass
             var fixture = reader(path.join('test', 'fixtures', 'fixture.html'));
             var expected = fs.readFileSync(path.join('test', 'expected', 'expected.html'), 'utf8');
+            var transform = markers.replaceMarkers();
             var writefile = path.join('./test/output/', type + '-output.html');
-
-            var stream = markers.replaceMarkers();
-
-            compare(fixture, expected, stream, done, writefile);
+            compare(fixture, expected, transform, done, writefile);
         });
 
         it(type + 's should do nothing when no markers have been added', function (done) {
 
             var markers = new Markers();
 
-            //var fixture = fs.readFileSync(path.join('test', 'fixtures', 'fixture.html'));
             var fixture = reader(path.join('test', 'fixtures', 'fixture.html'));
             var expected = fs.readFileSync(path.join('test', 'fixtures', 'fixture.html'), 'utf8');
 
-            var stream = markers.replaceMarkers();
+            // find the markers. nothing should change.
+            var transform = markers.findMarkers();
+            compare(fixture, expected, transform, noop);
 
-            compare(fixture, expected, stream, done);
+            var transform = markers.replaceMarkers();
+            compare(fixture, expected, transform, done);
         });
 
     });
