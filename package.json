@@ -6,7 +6,9 @@
   "scripts": {
     "test": "mocha"
   },
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bmacnaughton/gulp-markers.git"
@@ -35,6 +37,7 @@
   },
   "devDependencies": {
     "concat-stream": "^1.5.1",
+    "gulp": "^3.9.1",
     "gulp-rename": "^1.2.2",
     "mocha": "^2.5.3",
     "should": "^9.0.0",
