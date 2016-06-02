@@ -1,4 +1,4 @@
-# gulp-markers # [![Travis][travis-image]][travis-url]
+# gulp-markers [![Travis][travis-image]][travis-url]
 
 ## What does gulp-markers do? ##
 
