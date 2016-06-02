@@ -4,5 +4,5 @@ node_js:
   - "4"
   - "5.1"
   - "5"
-#after_script:
-#  - npm run coveralls
+after_script:
+  - npm run coveralls

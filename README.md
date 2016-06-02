@@ -1,4 +1,5 @@
-# gulp-markers [![Travis][travis-image]][travis-url]
+# gulp-markers [![Travis][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
+
 
 ## What does gulp-markers do? ##
 
@@ -199,3 +200,5 @@ To Vladimir Kucherenko for `gulp-html-replace`, my inspiration and model for `gu
 
 [travis-url]: https://travis-ci.org/bmacnaughton/gulp-markers
 [travis-image]: https://travis-ci.org/bmacnaughton/gulp-markers.svg
+[coveralls-url]: https://coveralls.io/github/bmacnaughton/gulp-markers?branch=master
+[coveralls-image]: https://coveralls.io/repos/bmacnaughton/gulp-markers/badge.svg?branch=master&service=github

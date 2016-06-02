@@ -4,7 +4,8 @@
   "description": "find and transform markers in files streams",
   "main": "./lib/index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "coveralls": "istanbul cover _mocha && istanbul-coveralls"
   },
   "files": [
     "lib"
@@ -39,6 +40,8 @@
     "concat-stream": "^1.5.1",
     "gulp": "^3.9.1",
     "gulp-rename": "^1.2.2",
+    "istanbul": "^0.4.3",
+    "istanbul-coveralls": "^1.0.3",
     "mocha": "^2.5.3",
     "should": "^9.0.0",
     "vinyl": "^1.1.1"
