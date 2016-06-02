@@ -9,10 +9,9 @@
 
 #### Install
 
-Install with one of the following two commands (until I publish in npm):
+Install with npm using either the --save or --save-dev option depending on your application:
 ```shell
-npm install --save git+https://git@github.com:bmacnaughton/gulp-markers.git
-npm install --save git+ssh://git@github.com:bmacnaughton/gulp-markers.git
+npm install --save gulp-markers
 ```
 
 #### Getting started
