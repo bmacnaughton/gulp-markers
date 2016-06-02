@@ -1,11 +1,12 @@
 {
   "name": "gulp-markers",
   "version": "0.0.2",
-  "description": "find and manipulate markers in streams",
+  "description": "find and transform markers in files streams",
   "main": "./lib/index.js",
   "scripts": {
     "test": "mocha"
   },
+  "files": ["lib"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bmacnaughton/gulp-markers.git"

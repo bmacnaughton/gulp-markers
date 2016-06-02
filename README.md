@@ -1,4 +1,4 @@
-# gulp-markers #
+# gulp-markers # [![Travis][travis-image]][travis-url]
 
 ## What does gulp-markers do? ##
 
@@ -38,7 +38,7 @@ markers.addMarker({
 });
 ```
 
-Then insert use the markers in a gulp task. Note the find and replace steps.
+Then use the markers in a gulp task. Note the find and replace steps.
 ```javascript
 gulp.task('html-file-task', function() {
     return gulp.src('my-html-file-path')
@@ -195,3 +195,7 @@ The documentation is skeletal.
 ### Special thanks ###
 
 To Vladimir Kucherenko for `gulp-html-replace`, my inspiration and model for `gulp-markers`.
+
+
+[travis-url]: https://travis-ci.org/bmacnaughton/gulp-markers
+[travis-image]: https://travis-ci.org/bmacnaughton/gulp-markers.svg
