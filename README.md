@@ -121,27 +121,28 @@ gulp.task('html-file-task', ['framework-js'], function() {
 ## gulp-markers API
 
 <b><code>Markers()</code></b>
+
 Constructor for markers.
 
 <b><code>.addMarker(tag, re, replace [, opts])</code></b>
 
 This method adds a marker to the instance. There are two signatures: individual arguments and an object form. In the object form each property of the object is identified by the names below.
 
-#### tag
+##### tag
 
 The tag argument identifies this marker. It will be passed to the replace function as part of the context object.
 
-#### re
+##### re
 
 The re argument is a RegExp object or a string that will be used to create a RegExp object. This regex is used to find markers in files. Groups defined in the regex will be passed to the replace function. The 'g' and 'm' flags will always be added for String.match() and RegExp.exec() calls.
 
-#### replace
+##### replace
 
 The replace argument is either a string or a function. A string will be used directly in a String.replace() function call. A function will be wrapped so the first argument is a context object, followed by the regular String.replace() function arguments.
 
 The context object contains a tag property - the value is the tag being executed, a data property - the data object specified in the opts property or {} if none, and a file property - the vinyl file properties cwd, base, and path. The context can be used as the replace function chooses.
 
-#### opts
+##### opts
 
 The opts argument is optional. If present, the options are applied to this marker. The only option currently implemented is `data`. It allows the caller to store any arbitrary data so that it is available to the replace function.
 
@@ -153,15 +154,15 @@ findMarkers returns a transform stream. No opts are currently implemented though
 
 replaceMarkers returns a transform stream. No opts are currently implemented. Once findMarkers has been invoked replaceMarkers may be invoked multiple times; it is not necessary to pipe the gulp streams through findMarkers again.
 
-# A little background
+## A little background
 
-## Why did I create gulp-markers ##
+### Why did I create gulp-markers ##
 
 There are many gulp replace solutions that already exist, so why did I end up creating this one? Simply because I wanted one framework to handle all the different use cases I encountered.
 
 I used a number of the many gulp-replace solutions that already exist and yet found myself writing custom solutions to handle various corner cases. I found that many of the things I wanted to do required jumping through hoops to work with existing solutions. So when I started to implement yet another solution I decided to try to implement a relatively generic framework. The goal was to expose a basic API that could be used to handle almost any special case.
 
-## Why use gulp-markers? ##
+### Why use gulp-markers? ##
 
 `gulp-markers` replaces all of the previous tools I was using; it might be able to do the same for you.
 
@@ -171,7 +172,7 @@ I now use `gulp-markers` to insert version numbers and licenses, update dates in
 
 The core code for the Transform streams is taken from `gulp-html-replace` so the logic is better tested than it otherwise would be.
 
-## Why not use gulp-markers? ##
+### Why not use gulp-markers? ##
 
 You have to write your own regex expressions and replacement functions. It's not as automatic for many common use cases as more specialized tools like `gulp-html-replace`.
 
