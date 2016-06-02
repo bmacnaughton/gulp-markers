@@ -6,11 +6,15 @@
 
 ## Usage
 
+#### Install
+
 Install with one of the following two commands (until I publish in npm):
 ```shell
 npm install --save git+https://git@github.com:bmacnaughton/gulp-markers.git
 npm install --save git+ssh://git@github.com:bmacnaughton/gulp-markers.git
 ```
+
+#### Getting started
 
 Put a marker in a file. This example is using a marker in an HTML file. I usually make markers look like comments for the file type so that editors don't complain about them. But it's not a requirement - you define them.
 ```html
@@ -120,7 +124,7 @@ Constructor for markers.
 
 <b><code>.addMarker(tag, re, replace [, opts])</code></b>
 
-This method adds a marker to the instance. There are two signatures: individual arguments and an object form.
+This method adds a marker to the instance. There are two signatures: individual arguments and an object form. In the object form each property of the object is identified by the names below.
 
 #### tag
 
@@ -172,9 +176,7 @@ You have to write your own regex expressions and replacement functions. It's not
 
 Though I use it for my projects, it's received very little real-world use; it's very early. It's the first open-source project that I really intend for others to use.
 
-I haven't implemented streams testing yet - only buffered.
-
-The documentation is still sketchy.
+The documentation is skeletal.
 
 ### Design goals for gulp-markers ###
 
