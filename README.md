@@ -176,7 +176,7 @@ The core code for the Transform streams is taken from `gulp-html-replace` so the
 
 You have to write your own regex expressions and replacement functions. It's not as automatic for many common use cases as more specialized tools like `gulp-html-replace`.
 
-Though I use it for my projects, it's received very little real-world use; it's very early. It's the first open-source project that I really intend for others to use.
+Though I use it for my projects, it's received very little real-world use; it's very early. It's the first open-source project of mine that I have intended to be used by others.
 
 The documentation is skeletal.
 
