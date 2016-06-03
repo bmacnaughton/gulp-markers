@@ -13,12 +13,14 @@ var should = require('should');
 var assert = require('assert');
 var concatStream = require('concat-stream');
 
-// run the same tests for buffers and streams
+// run a buffer/stream-independent test
+runCoreTest();
+
+// run a suite of tests for buffers and streams
 runTests('buffer');
 runTests('stream');
 
-// run a buffer/stream-independent test
-runCoreTest();
+
 
 var markerDefinitions = [
     {
@@ -28,20 +30,23 @@ var markerDefinitions = [
         replace: function (context, match, startYear) {
             var year = new Date().getFullYear();
             return '<!-- Copyright BAM ' + startYear + '-' + year + ' -->';
-        }
+        },
+        opts: {data: {expected: {files: 1, matches: 1}}}
     }, {
         tag: 'html-copyright-via-regex',
         re: new RegExp('<!-- insert:html-copyright-via-regex:(\\d{4}) -->'),
         replace: function (context, match, startYear) {
             var year = new Date().getFullYear();
             return '<!-- Copyright BAM ' + startYear + '-' + year + ' -->';
-        }
+        },
+        opts: {data: {expected: {files: 1, matches: 1}}}
     }, {
         // insert a single item using a string replacement.
         tag: 'html-block-string-css',
         //    1     2        3                                     x          x        4      5x       x
         re: '(\\n?)([ \\t]*)(<!-- @begin:html-block-string-css -->(?:[ \\t]*)(?:\\n?))([^]*?)((?:\\n?)(?:[ \\t]*)<!-- @end:html-block-string-css -->)',
-        replace: '$1$2$3$2<link rel="stylesheet" href="css/combined.css">$5'
+        replace: '$1$2$3$2<link rel="stylesheet" href="css/combined.css">$5',
+        opts: {data: {expected: {files: 1, matches: 1}}}
     }, {
         // insert multiple items using a replacement function.
         tag: 'html-block-func-css',
@@ -53,12 +58,13 @@ var markerDefinitions = [
             });
             // the next line leaves the markers in place; it's easy enough to take them out.
             return newline + whitespace + begin + lines.join('\n') + end;
-        }
+        },
+        opts: {data: {expected: {files: 1, matches: 1}}}
     }, {
         tag: 'framework-js',
         //     1       2           3           4     5
         re: '^([ \t]*)(<!-- begin:(wf_js) -->)([^]*)(<!-- end:wf_js -->)',
-        replace: htmlScriptReplacement
+        replace: htmlScriptReplacement,
     }, {
         tag: 'framework-js-vendor',
         //     1       2           3            4     5
@@ -99,6 +105,8 @@ var markerDefinitions = [
         replace: jsBracketedReplacement
     }
 ];
+
+var markerDefinitionsCount = markerDefinitions.length;
 
 function htmlScriptReplacement(context, match, whitespace, begin, id, body, end) {
     /*
@@ -164,6 +172,8 @@ function jsBracketedReplacement(context, match, whitespace, task, selector, body
     return '\nTBD\n'
 }
 
+// not cloning the objects but getting a new array.
+//var allMarkerDefinitions = markerDefinitions.map(m => m);
 
 function bufferCompare(fixture, expected, transform, done, filename) {
     transform.once('data', function (file) {
@@ -189,7 +199,6 @@ function bufferCompare(fixture, expected, transform, done, filename) {
     }));
 }
 
-
 function streamCompare(fixture, expected, transform, done, filename) {
     var fakeFile = new File({
         base: path.resolve('www'),
@@ -200,7 +209,7 @@ function streamCompare(fixture, expected, transform, done, filename) {
     transform.write(fakeFile);
 
     transform.once('data', function (file) {
-        // write the file if filename is supplied
+        // write the data if filename is supplied
         var filedata;
         function writefile(resolve, reject) {
             if (filename) {
@@ -221,66 +230,9 @@ function streamCompare(fixture, expected, transform, done, filename) {
     });
 }
 
-function noop(){};
-
-function runTests(type) {
-
-    var compare = ({buffer: bufferCompare, stream: streamCompare})[type];
-    var reader = ({buffer: fs.readFileSync, stream: fs.createReadStream})[type];
-
-    describe(type + ' mode - raw file', function () {
-        it('should replace blocks', function (done) {
-
-            var markers = new Markers();
-
-            //
-            // add the markers
-            //
-            markerDefinitions.forEach(m => markers.addMarker(m));
-
-            // make sure that a marker can be added as individual arguments
-            markers.addMarker(
-                'html-copyright-non-object',
-                new RegExp('<!-- insert:html-copyright-non-object:(\\d{4}) -->'),
-                function (context, match, startYear) {
-                    var year = new Date().getFullYear();
-                    return '<!-- Copyright BAM ' + startYear + '-' + year + ' -->';
-                }
-            );
-
-            // find the markers. nothing should change.
-            var fixture = reader(path.join('test', 'fixtures', 'fixture.html'));
-            var unchanged = fs.readFileSync(path.join('test', 'fixtures', 'fixture.html'), 'utf8');
-            var transform = markers.findMarkers();
-            compare(fixture, unchanged, transform, noop);
-
-            // reset for replace pass
-            var fixture = reader(path.join('test', 'fixtures', 'fixture.html'));
-            var expected = fs.readFileSync(path.join('test', 'expected', 'expected.html'), 'utf8');
-            var transform = markers.replaceMarkers();
-            var writefile = path.join('./test/output/', type + '-output.html');
-            compare(fixture, expected, transform, done, writefile);
-        });
-
-        it(type + 's should do nothing when no markers have been added', function (done) {
-
-            var markers = new Markers();
-
-            var fixture = reader(path.join('test', 'fixtures', 'fixture.html'));
-            var expected = fs.readFileSync(path.join('test', 'fixtures', 'fixture.html'), 'utf8');
-
-            // find the markers. nothing should change.
-            var transform = markers.findMarkers();
-            compare(fixture, expected, transform, noop);
-
-            var transform = markers.replaceMarkers();
-            compare(fixture, expected, transform, done);
-        });
-
-    });
-
-}
-
+//
+// run core tests to make sure the constructor works and markers are added correctly
+//
 function runCoreTest() {
     var markers, markerTagsDefined;
 
@@ -318,12 +270,112 @@ function runCoreTest() {
             markerTagsDefined.should.containDeep(markerTags);
         });
 
-        /*
-        it ('should have the right number of files for each tag', function() {
-            var markerTags = markers.getMarkerTags();
-            var fileCounts = markerTags.map(t => markers.getFiles(t));
-            fileCounts.forEach((c, i) => (c.length).should.eql(1, 'for index: ' + i));
-        });
-        // */
     });
 }
+
+//
+// run a suite of tests.
+//
+function runTests(type) {
+    function errorHandler(filename) {
+        return fs.createReadStream(filename).on('error', err => {throw err});
+    }
+
+    var compare = ({buffer: bufferCompare, stream: streamCompare})[type];
+    var reader = ({buffer: fs.readFileSync, stream: errorHandler})[type];
+    var fixtureFile = path.join('test', 'fixtures', 'fixture.html');
+
+    describe(type + ' mode - raw file', function () {
+        it('should replace blocks', function (done) {
+
+            var markers = new Markers();
+
+            //
+            // add the markers
+            //
+            markerDefinitions.forEach(m => markers.addMarker(m));
+
+            // make sure that a marker can be added as individual arguments
+            markers.addMarker(
+                'html-copyright-non-object',
+                new RegExp('<!-- insert:html-copyright-non-object:(\\d{4}) -->'),
+                function (context, match, startYear) {
+                    var year = new Date().getFullYear();
+                    return '<!-- Copyright BAM ' + startYear + '-' + year + ' -->';
+                }
+            );
+
+            // find the markers. nothing should change.
+            var fixture = reader(fixtureFile);
+            var unchanged = fs.readFileSync(fixtureFile, 'utf8');
+            var transform = markers.findMarkers();
+            var p = new Promise(function(resolve, reject) {
+                compare(fixture, unchanged, transform, () => resolve())
+            });
+
+            // when finding is done do replacing
+            p.then(function() {
+                var fixture = reader(fixtureFile);
+                var expected = fs.readFileSync(path.join('test', 'expected', 'expected.html'), 'utf8');
+                var transform = markers.replaceMarkers();
+                var writefile = path.join('./test/output/', type + '-output.html');
+                compare(fixture, expected, transform, done, writefile);
+            });
+        });
+
+        it('should do nothing when no markers have been added', function (done) {
+
+            var markers = new Markers();
+
+            var fixture = reader(fixtureFile);
+            var expected = fs.readFileSync(fixtureFile, 'utf8');
+
+            // find the markers. nothing should change.
+            var transform = markers.findMarkers();
+            var p = new Promise(function(resolve, reject) {
+                compare(fixture, expected, transform, () => resolve());
+            });
+
+            var transform = markers.replaceMarkers();
+            compare(fixture, expected, transform, done);
+        });
+
+        it('should find the correct files and markers', function(done) {
+            var debug = null;
+            if (false && type === 'stream') {
+                debug = d => console.log('DEBUG', d);
+            }
+
+            var markers = new Markers();
+            markerDefinitions.forEach(m => markers.addMarker(m));
+
+            // find the markers. no real need to compare but it's easier
+            // than writing functions that just consume with the transform.
+            var fixture = reader(fixtureFile);
+            var expected = fs.readFileSync(fixtureFile, 'utf8');
+            var transform = markers.findMarkers({debug: debug});
+            var p = new Promise(function(resolve, reject) {
+                compare(fixture, expected, transform, () => resolve())
+            });
+
+            // when finding is done evaluate the results
+            p.then(function() {
+                var tags = markers.getMarkerTags();
+                (tags.length).should.eql(markerDefinitions.length);
+                tags.forEach(function(t) {
+                    var marker = markers.getMarker(t);
+                    var files = markers.getFiles(t);
+                    //var matches = markers.getMatches(t, f);
+                    if (marker.data.expected && marker.data.expected.files) {
+                        (files.length).should.eql(marker.data.expected.files, 'for ' + t);
+                    }
+                });
+
+                done();
+            });
+        });
+
+    });
+
+}
+

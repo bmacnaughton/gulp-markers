@@ -49,7 +49,14 @@ describe('gulp mode - testing markers', function() {
         var files = markers.m[tag].files;
         should.equal(Object.keys(files).length, 1, 'verify one file');
         should.exist(files[path.resolve(src)], 'verify correct file');
-        should.equal(files[path.resolve(src)].length, 3, 'verify number of matches');
+        var matchCount = 0;
+        // for each file hash count the matches for each regex hash
+        Object.keys(files).forEach(function(f) {
+            Object.keys(files[f]).forEach(r => {
+                matchCount += files[f][r].length;
+            })
+        })
+        should.equal(matchCount, 3, 'verify number of matches');
     });
 
     it('find should not change the file', function() {
