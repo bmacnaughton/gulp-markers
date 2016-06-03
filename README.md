@@ -29,7 +29,7 @@ var markers = new Markers();
 
 markers.addMarker({
     tag: 'js-insertions',
-    re: new RegExp(/<!-- @insert:js-vendor -->/),
+    re: /<!-- @insert:js-vendor -->/,
     replace: function(context, match) {
         var vendorJSFiles = ['jquery.min.js', 'paper-core.min.js'];
         var lines = vendorJSFiles.map(f => '<script src="' + f + '"></script>');
@@ -63,7 +63,7 @@ var jsFiles = {
 markers.addMarker({
     tag: 'js-insertions',
     //               1    2                    3
-    re: new RegExp(/(\n?)([ \t]*)<!-- @insert:([A-Za-z0-9-]+) -->/),
+    re: /(\n?)([ \t]*)<!-- @insert:([A-Za-z0-9-]+) -->/,
     replace: function(context, match, newline, whitespace, id) {
         if (!jsFiles[id]) {
             // no match so don't change anything
@@ -176,6 +176,8 @@ You have to write your own regex expressions and replacement functions. It's not
 Though I use it for my projects, it's received very little real-world use; it's very early. It's the first open-source project of mine that I have intended to be used by others.
 
 The documentation is skeletal.
+
+You don't want to run node 4.1 or greater. If this is an issue for many people I'll work on making it backward compatible.
 
 ### Design goals for gulp-markers ###
 
