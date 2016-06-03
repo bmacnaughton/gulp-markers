@@ -22,7 +22,8 @@
     "insertion",
     "replace",
     "replacement",
-    "inject"
+    "inject",
+    "regex"
   ],
   "author": {
     "name": "Bruce A. MacNaughton",
