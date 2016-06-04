@@ -134,26 +134,6 @@ function runCoreTest() {
             });
 
         })
-        /*
-        for (var i = 0; i < markerSets.length; i++) {
-            it('should have the right number of markers', function() {
-                var markers = markerSets[i].markers;
-                var markerTagsDefined = markerSets[i].markerTagsDefined;
-
-                var markerTags = markers.getMarkerTags();
-                (markerTags.length).should.equal(markerTagsDefined.length);
-            });
-
-            it('should have the right tags', function() {
-                var markers = markerSets[i].markers;
-                var markerTagsDefined = markerSets[i].markerTagsDefined;
-
-                var markerTags = markers.getMarkerTags();
-                markerTags.should.containDeep(markerTagsDefined);
-                markerTagsDefined.should.containDeep(markerTags);
-            });
-        };
-        // */
     });
 }
 
@@ -247,8 +227,8 @@ function runTests(type) {
                 var tags = markers.getMarkerTags();
                 (tags.length).should.eql(markerDefinitions.length);
                 tags.forEach(function(t) {
-                    var marker = markers.getMarker(t);
-                    var files = markers.getFiles(t);
+                    var marker = markers._getMarker(t);
+                    var files = markers.getFilesForMarker(t);
                     //var matches = markers.getMatches(t, f);
                     if (marker.data.expected && marker.data.expected.files) {
                         (files.length).should.eql(marker.data.expected.files, 'for ' + t);

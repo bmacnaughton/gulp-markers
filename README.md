@@ -16,7 +16,7 @@ npm install --save gulp-markers
 
 #### Getting started
 
-Put a marker in a file. This example is using a marker in an HTML file. I usually make markers look like comments for the file type so that editors don't complain about them. But it's not a requirement - you define them.
+Put a marker in a file. This example uses a marker in an HTML file. I usually make markers look like comments for the file type so that editors don't complain about them. But it's not a requirement - you define them.
 ```html
 <!-- @insert:js-vendor -->
 ```
@@ -117,9 +117,9 @@ gulp.task('html-file-task', ['framework-js'], function() {
 
 ## gulp-markers API
 
-<h4><b><code>Markers()</code></b></h4>
+<h4><b><code>Markers([markers])</code></b></h4>
 
-Constructor for markers.
+Constructor for markers. It has an optional argument - an array of marker objects as described below.
 
 <h4><b><code>.addMarker(tag, re, replace [, opts])</code></b></h4>
 
@@ -143,6 +143,10 @@ The context object contains a tag property - the value is the tag being executed
 
 The opts argument is optional. If present, the options are applied to this marker. The only option currently implemented is `data`. It allows the caller to store any arbitrary data so that it is available to the replace function.
 
+<h4><b><code>.addMarkers(array)</code></b></h4>
+
+addMarkers has one argument - an array of objects, each defining a marker as described above.
+
 <h4><b><code>.findMarkers(opts)</code></b></h4>
 
 findMarkers returns a transform stream. No opts are currently implemented. The filenames in which the markers were found can be fetched.
@@ -150,6 +154,14 @@ findMarkers returns a transform stream. No opts are currently implemented. The f
 <h4><b><code>.replaceMarkers(opts)</code></b></h4>
 
 replaceMarkers returns a transform stream. No opts are currently implemented. If you wish to replace the markers without first finding them just use replaceMarkers without first using findMarkers. replaceMarkers may be invoked multiple times.
+
+<h4><b><code>.getMarkerTags()</code></b></h4>
+
+getMarkerTags returns an array filled with all marker tags.
+
+<h4><b><code>.getFilesForMarker(tag)</code></b></h4>
+
+returns an array of filenames in which the marker defined by `tag` was found. The filenames are in the form returned by `path.resolve()`.
 
 ## A little background
 
