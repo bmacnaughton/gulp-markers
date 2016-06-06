@@ -48,6 +48,8 @@ gulp.task('html-file-task', function() {
 });
 ```
 
+#### Making the marker replace function more generic
+
 With a small tweak to the regex and the replacement function this can handle insertion of multiple categories of script files. Change the regex to capture some groups, most importantly the text following "@insert:". That can be used to determine what js files to insert. It is also capturing whitespace so it can align the output. The patterns captured by the groups appear after the first two arguments, context and match.
 
 ```javascript
@@ -75,8 +77,9 @@ markers.addMarker({
 });
 
 ```
+#### Adding gulp-filenames into the mix
 
-One more tweak - use `gulp-filenames` to capture the filenames after all task-specific build options have been applied. I usually set `optConcat` and `optMinify` based on the target being built. So we'll just change the replace function to fetch the filenames collected rather than using a hardcoded array. That way it will insert the separate files or the concatenated single file either of which may have been minified and renamed and the inserted files will be correct for any target configuration.
+One more tweak - use [gulp-filenames](https://github.com/johnydays/gulp-filenames) to capture the filenames after all task-specific build options have been applied. I usually set `optConcat` and `optMinify` based on the target being built. So we'll just change the replace function to fetch the filenames collected rather than using a hardcoded array. That way it will insert the separate files or the concatenated single file either of which may have been minified and renamed and the inserted files will be correct for any target configuration.
 
 Here's the new replace function:
 ```js
@@ -113,6 +116,33 @@ gulp.task('html-file-task', ['framework-js'], function() {
 });
 
 ```
+
+#### Example of bracketed markers, i.e., a marker with a begin, a body, and an end.
+
+Finally, here's one of the regexes I use to insert JavaScript filenames into PHP source (so PHP can insert script tags for them). The groups are marked by numbers, non-capturing groups with an 'x'. I don't care about keeping the markers in place; if you do then you need to add groups to capture the markers (or reconstruct them using the already captured groups).
+
+```javascript
+//    1    2                       3              x   4             5
+re: /(\n?)([ \t]*)\/\/\+\+ @begin:([A-Za-z0-9-]+)(?::(\S+))* --\/\/([^]*?)\/\/\+\+ @end:\3 --\/\//,
+```
+
+It recognizes markers of the form (where ... represents anything)
+
+```javascript
+//++ @begin:dashed-letters[:optional] --//
+...
+//++ @end:dashed-letters --//
+```
+
+The groups:
+1. capture whether there is a newline at the beginning of the whitespace.
+2. capture whitespace; I don't use \s because it recognizes \n as well.
+3. the primary identifier consisting only of letters, numbers, and dashes.
+4. and optional sequence following a colon of non-whitespace characters.
+5. the body between the begin and end markers.
+
+The optional sequence can be used as a format selector, a regex, a regex selector, etc.
+
 
 ## gulp-markers API
 
@@ -174,21 +204,21 @@ I used a number of the many gulp-replace solutions that already exist and yet fo
 
 `gulp-markers` replaces all of the previous tools I was using; it might be able to do the same for you.
 
-I started using `gulp-html-replace` and found it quite useful for many cases, as well as being a very nicely constructed package with excellent testing. But I had situations where I wanted to insert dynamically configured filenames (optionally concatenated and minified) into HTML files and PHP files. And I wanted to encode additional information into the markers so that the insertion functions could be as general as possible.
+I started using (gulp-html-replace)[https://github.com/VFK/gulp-html-replace] and found it quite useful for many cases, as well as being a very nicely constructed package with excellent testing. But I had situations where I wanted to insert dynamically configured filenames (optionally concatenated and minified) into HTML files and PHP files. And I wanted to encode additional information into the markers so that the insertion functions could be as general as possible.
 
 I now use `gulp-markers` to insert version numbers and licenses, update dates in copyright notices, insert css files, insert JavaScript files, and insert dynamic lists of files captured by gulp-filenames. All into HTML, JavaScript, Python, and PHP files.
 
-The core code for the Transform streams is taken from `gulp-html-replace` so the logic is better tested than it otherwise would be.
+The core code for the Transform streams is taken from (gulp-html-replace)[https://github.com/VFK/gulp-html-replace] so the logic is better tested than it otherwise would be.
 
 ### Why not use gulp-markers? ##
 
-You have to write your own regex expressions and replacement functions. It's not as automatic for many common use cases as more specialized tools like `gulp-html-replace`.
+You have to write your own regex expressions and replacement functions. It's not as automatic for many common use cases as more specialized tools like (gulp-html-replace)[https://github.com/VFK/gulp-html-replace].
 
 Though I use it for my projects, it's received very little real-world use; it's very early. It's the first open-source project of mine that I have intended to be used by others.
 
 The documentation is skeletal.
 
-You don't want to run node 4.1 or greater. If this is an issue for many people I'll work on making it backward compatible.
+You don't want to run node 4 or greater. If this is an issue for many people I'll make it backward compatible. The feature I find very convenient is arrow-functions, specifically keeping the lexical context. And it seems time to move past node.js 0.12 and io.js - node 4.0 had no major or breaking changes other than native modules (written in C++ and linked against V8).
 
 ### Design goals for gulp-markers ###
 
@@ -206,7 +236,7 @@ You don't want to run node 4.1 or greater. If this is an issue for many people I
 
 ### Special thanks ###
 
-To Vladimir Kucherenko for `gulp-html-replace`, my inspiration and model for `gulp-markers`.
+To Vladimir Kucherenko for (gulp-html-replace)[https://github.com/VFK/gulp-html-replace], my inspiration and model for `gulp-markers`.
 
 
 [travis-url]: https://travis-ci.org/bmacnaughton/gulp-markers
