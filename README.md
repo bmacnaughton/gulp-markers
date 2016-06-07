@@ -63,7 +63,7 @@ var jsFiles = {
 
 markers.addMarker({
     tag: 'js-insertions',
-    //               1    2                    3
+    //    1    2                    3
     re: /(\n?)([ \t]*)<!-- @insert:([A-Za-z0-9-]+) -->/,
     replace: function(context, match, newline, whitespace, id) {
         if (!jsFiles[id]) {
@@ -154,7 +154,7 @@ Constructor for markers. It has an optional argument - an array of marker object
 <h4><b><code>.addMarker(tag, re, replace [, opts])</code></b></h4>
 <h4><b><code>.addMarker({tag, re, replace[, opts]})</code></b></h4>
 
-This method adds a marker to the instance. There are two signatures: individual arguments and an object form. In the object form each property of the object is identified by the property names shown.
+adds a marker to the instance. There are two signatures: individual arguments and an object form. In the object form each property of the object is identified by the property names shown.
 
 ##### tag
 
@@ -162,13 +162,18 @@ The tag argument identifies this marker. It will be passed to the replace functi
 
 ##### re
 
-The re argument is a RegExp object or a string that will be used to create a RegExp object. This regex is used to find markers in files. Groups defined in the regex will be passed to the replace function. If the argument is a RegExp object only the `source` property is used.
+The re argument is a `RegExp` object or a string that will be used to create a `RegExp` object. This regex is used to find markers in files. Groups defined in the regex will be passed to the `replace` function. If the argument is a `RegExp` object only the `source` property is used.
 
 ##### replace
 
-The replace argument is either a string or a function. A string will be used directly in a String.replace() function call. A function will be wrapped so the first argument is a context object, followed by the regular String.replace() function arguments.
+The replace argument is either a string or a function. A string will be used directly in a `String.replace()` function call. A function will be wrapped so the first argument is a context object, followed by the regular `String.replace()` function [arguments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace).
 
-The context object contains a tag property - the value is the tag being executed, a data property - the data object specified in the opts property or {} if none, and a file property - the vinyl file properties cwd, base, and path. The context can be used as the replace function chooses.
+The context object contains:
+- a tag property - the value is the tag being executed
+- a data property - the data object specified in the opts property or {} if none
+- a file property - the vinyl file properties cwd, base, and path.
+
+The context can be used as the replace function chooses.
 
 ##### opts
 
@@ -176,23 +181,23 @@ The opts argument is optional. If present, the options are applied to this marke
 
 <h4><b><code>.addMarkers(array)</code></b></h4>
 
-addMarkers has one argument - an array of objects, each defining a marker as described above.
+adds an array of markers. Each element is an object that defines a marker as described above.
 
 <h4><b><code>.findMarkers(opts)</code></b></h4>
 
-findMarkers returns a transform stream. No opts are currently implemented. The filenames in which the markers were found can be fetched.
+returns a transform stream. No opts are currently implemented. The filenames in which the markers were found can be fetched.
 
 <h4><b><code>.replaceMarkers(opts)</code></b></h4>
 
-replaceMarkers returns a transform stream. No opts are currently implemented. If you wish to replace the markers without first finding them just use replaceMarkers without first using findMarkers. replaceMarkers may be invoked multiple times.
+returns a transform stream. No opts are currently implemented. If you wish to replace the markers without first finding them just use `replaceMarkers` without first using `findMarkers`. `replaceMarkers` may be invoked multiple times; it doesn't add any state to the `Marker` object.
 
 <h4><b><code>.getMarkerTags()</code></b></h4>
 
-getMarkerTags returns an array filled with all marker tags.
+returns an array filled with all marker tags.
 
 <h4><b><code>.getFilesForMarker(tag)</code></b></h4>
 
-returns an array of filenames in which the marker defined by `tag` was found. The filenames are in the form returned by `path.resolve()`.
+returns an array of filenames in which the marker defined by `tag` was found. The filenames are in the form returned by `path.resolve()`. Note - The `findMarkers` transform must be executed in order to capture the files in which matches occur.
 
 ## A little background
 
@@ -210,7 +215,7 @@ I started using [gulp-html-replace](https://github.com/VFK/gulp-html-replace) an
 
 I now use `gulp-markers` to insert version numbers and licenses, update dates in copyright notices, insert css files, insert JavaScript files, and insert dynamic lists of files captured by [gulp-filenames](https://github.com/johnydays/gulp-filenames). All into HTML, JavaScript, Python, and PHP files.
 
-The core code for the Transform streams is taken from [gulp-html-replace](https://github.com/VFK/gulp-html-replace) so the logic is better tested than it otherwise would be.
+The core code for the Transform streams is taken from [gulp-html-replace](https://github.com/VFK/gulp-html-replace), with a only a few modifications, so the logic is better tested than it otherwise would be.
 
 ### Why not use gulp-markers? ##
 
