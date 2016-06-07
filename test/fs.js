@@ -141,13 +141,21 @@ function runCoreTest() {
 // run a suite of tests.
 //
 function runTests(type) {
-    function errorHandler(filename) {
+    function createReadStream(filename) {
         return fs.createReadStream(filename).on('error', err => {throw err});
     }
 
     var compare = ({buffer: bufferCompare, stream: streamCompare})[type];
-    var reader = ({buffer: fs.readFileSync, stream: errorHandler})[type];
+    var reader = ({buffer: fs.readFileSync, stream: createReadStream})[type];
     var fixtureFile = path.join('test', 'fixtures', 'fixture.html');
+
+    var debug = null;
+    // next condition depends on what should be debugged
+    if (false) {
+        debug = function() {
+            console.log.apply(null, [].slice.call(arguments));
+        }
+    };
 
     describe(type + ' mode - raw file', function () {
         it('should replace blocks', function (done) {
@@ -172,16 +180,16 @@ function runTests(type) {
             // find the markers. nothing should change.
             var fixture = reader(fixtureFile);
             var unchanged = fs.readFileSync(fixtureFile, 'utf8');
-            var transform = markers.findMarkers();
+            var transform = markers.findMarkers({debug});
             var p = new Promise(function(resolve, reject) {
                 compare(fixture, unchanged, transform, () => resolve())
             });
 
-            // when finding is done do replacing
+            // when finding is done then do replacing
             p.then(function() {
                 var fixture = reader(fixtureFile);
                 var expected = fs.readFileSync(path.join('test', 'expected', 'expected.html'), 'utf8');
-                var transform = markers.replaceMarkers();
+                var transform = markers.replaceMarkers({debug});
                 var writefile = path.join('./test/output/', type + '-output.html');
                 compare(fixture, expected, transform, done, writefile);
             });
@@ -205,10 +213,6 @@ function runTests(type) {
         });
 
         it('should find the correct files and markers', function(done) {
-            var debug = null;
-            if (false && type === 'stream') {
-                debug = d => console.log('DEBUG', d);
-            }
 
             var markers = new Markers();
             markerDefinitions.forEach(m => markers.addMarker(m));
@@ -217,7 +221,7 @@ function runTests(type) {
             // than writing functions that just consume with the transform.
             var fixture = reader(fixtureFile);
             var expected = fs.readFileSync(fixtureFile, 'utf8');
-            var transform = markers.findMarkers({debug: debug});
+            var transform = markers.findMarkers({debug: null});
             var p = new Promise(function(resolve, reject) {
                 compare(fixture, expected, transform, () => resolve())
             });
