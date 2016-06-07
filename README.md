@@ -15,7 +15,7 @@ npm install --save gulp-markers
 
 #### Getting started
 
-Put a marker in a file. This example uses a marker in an HTML file. I usually make markers look like comments for the file type so that editors don't complain about them. But it's not a requirement - you define them.
+Put a marker in a file. This example uses a marker in an HTML file. I usually make markers look like comments for the file type so editors don't complain about them. But it's not a requirement - you define them.
 ```html
 <!-- @insert:js-vendor -->
 ```
@@ -139,7 +139,7 @@ The groups:
 1. capture whether there is a newline at the beginning of the whitespace.
 2. capture whitespace; I don't use \s because it recognizes \n as well.
 3. the primary identifier consisting only of letters, numbers, and dashes.
-4. and optional sequence following a colon of non-whitespace characters.
+4. and optional sequence of non-whitespace characters following a colon.
 5. the body between the begin and end markers.
 
 The optional sequence can be used as a format selector, a regex, a regex selector, etc.
@@ -154,15 +154,15 @@ Constructor for markers. It has an optional argument - an array of marker object
 <h4><b><code>.addMarker(tag, re, replace [, opts])</code></b></h4>
 <h4><b><code>.addMarker({tag, re, replace[, opts]})</code></b></h4>
 
-This method adds a marker to the instance. There are two signatures: individual arguments and an object form. In the object form each property of the object is identified by the names below.
+This method adds a marker to the instance. There are two signatures: individual arguments and an object form. In the object form each property of the object is identified by the property names shown.
 
 ##### tag
 
-The tag argument identifies this marker. It will be passed to the replace function as part of the context object.
+The tag argument identifies this marker. It will be passed to the replace function as part of the context object. It can also be used to get an array of files in which this marker was found.
 
 ##### re
 
-The re argument is a RegExp object or a string that will be used to create a RegExp object. This regex is used to find markers in files. Groups defined in the regex will be passed to the replace function. The 'g' and 'm' flags will always be added for String.match() and RegExp.exec() calls.
+The re argument is a RegExp object or a string that will be used to create a RegExp object. This regex is used to find markers in files. Groups defined in the regex will be passed to the replace function. If the argument is a RegExp object only the `source` property is used.
 
 ##### replace
 
@@ -172,7 +172,7 @@ The context object contains a tag property - the value is the tag being executed
 
 ##### opts
 
-The opts argument is optional. If present, the options are applied to this marker. The only option currently implemented is `data`. It allows the caller to store any arbitrary data so that it is available to the replace function.
+The opts argument is optional. If present, the options are applied to this marker. The only option currently implemented is `data`. It allows the caller to store any arbitrary data so it is available to the replace function.
 
 <h4><b><code>.addMarkers(array)</code></b></h4>
 
@@ -206,7 +206,7 @@ I used a number of the many gulp-replace solutions that already exist and yet fo
 
 `gulp-markers` replaces all of the previous tools I was using; it might be able to do the same for you.
 
-I started using [gulp-html-replace](https://github.com/VFK/gulp-html-replace) and found it quite useful for many cases, as well as being a very nicely constructed package with excellent testing. But I had situations where I wanted to insert dynamically configured filenames (optionally concatenated and minified) into HTML files and PHP files. And I wanted to encode additional information into the markers so that the insertion functions could be as general as possible.
+I started using [gulp-html-replace](https://github.com/VFK/gulp-html-replace) and found it quite useful for many cases, as well as being a very nicely constructed package with excellent testing. But I had situations where I wanted to insert dynamically configured filenames (optionally concatenated and minified) into HTML files and PHP files. And I wanted to encode additional information into the markers so the insertion functions could be as general as possible.
 
 I now use `gulp-markers` to insert version numbers and licenses, update dates in copyright notices, insert css files, insert JavaScript files, and insert dynamic lists of files captured by [gulp-filenames](https://github.com/johnydays/gulp-filenames). All into HTML, JavaScript, Python, and PHP files.
 
@@ -218,7 +218,7 @@ You have to write your own regex expressions and replacement functions. It's not
 
 Though I use it for my projects, it's received very little real-world use; it's very early. It's the first open-source project of mine that I have intended to be used by others.
 
-The documentation is skeletal.
+The documentation is basic. I need to add a "recipes" document.
 
 You don't want to run node 4 or greater. If this is an issue for many people I'll make it backward compatible. The feature I find very convenient is arrow-functions, specifically keeping the lexical context. And it seems time to move past node.js 0.12 and io.js - node 4.0 had no major or breaking changes other than native modules (written in C++ and linked against V8).
 
