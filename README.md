@@ -206,7 +206,7 @@ I used a number of the many gulp-replace solutions that already exist and yet fo
 
 I started using (gulp-html-replace)[https://github.com/VFK/gulp-html-replace] and found it quite useful for many cases, as well as being a very nicely constructed package with excellent testing. But I had situations where I wanted to insert dynamically configured filenames (optionally concatenated and minified) into HTML files and PHP files. And I wanted to encode additional information into the markers so that the insertion functions could be as general as possible.
 
-I now use `gulp-markers` to insert version numbers and licenses, update dates in copyright notices, insert css files, insert JavaScript files, and insert dynamic lists of files captured by gulp-filenames. All into HTML, JavaScript, Python, and PHP files.
+I now use `gulp-markers` to insert version numbers and licenses, update dates in copyright notices, insert css files, insert JavaScript files, and insert dynamic lists of files captured by [gulp-filenames](https://github.com/johnydays/gulp-filenames). All into HTML, JavaScript, Python, and PHP files.
 
 The core code for the Transform streams is taken from (gulp-html-replace)[https://github.com/VFK/gulp-html-replace] so the logic is better tested than it otherwise would be.
 
@@ -236,7 +236,7 @@ You don't want to run node 4 or greater. If this is an issue for many people I'l
 
 ### Special thanks ###
 
-To Vladimir Kucherenko for (gulp-html-replace)[https://github.com/VFK/gulp-html-replace], my inspiration and model for `gulp-markers`.
+To Vladimir Kucherenko for (gulp-html-replace)[https://github.com/VFK/gulp-html-replace], where I started this journey.
 
 
 [travis-url]: https://travis-ci.org/bmacnaughton/gulp-markers
