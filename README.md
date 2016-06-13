@@ -4,6 +4,12 @@
 
 `gulp-markers` uses regular expressions to find markers in gulp file streams and transform them. The markers are defined by regular expressions and transforms are specified by a string or function. Both are defined by the user. `gulp-markers` is just a framework; it does nothing more.
 
+## Table of contents
+* [Getting Started with Examples](#getting-started)
+* [API](#gulp-markers-api)
+* [Background](#a-little-background)
+
+
 ## Usage
 
 #### Install
@@ -139,7 +145,7 @@ The groups:
 1. capture whether there is a newline at the beginning of the whitespace.
 2. capture whitespace; I don't use \s because it recognizes \n as well.
 3. the primary identifier consisting only of letters, numbers, and dashes.
-4. and optional sequence of non-whitespace characters following a colon.
+4. an optional sequence of non-whitespace characters following a colon.
 5. the body between the begin and end markers.
 
 The optional sequence can be used as a format selector, a regex, a regex selector, etc.
@@ -168,10 +174,10 @@ The re argument is a `RegExp` object or a string that will be used to create a `
 
 The replace argument is either a string or a function. A string will be used directly in a `String.replace()` function call. A function will be wrapped so the first argument is a context object, followed by the regular `String.replace()` function [arguments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace).
 
-The context object contains:
-- a tag property - the value is the tag being executed
-- a data property - the data object specified in the opts property or {} if none
-- a file property - the vinyl file properties cwd, base, and path.
+The context object contains the following properties:
+- tag -  the tag being executed
+- data - the data object specified in the opts property or {} if none
+- file - the vinyl file properties cwd, base, and path.
 
 The context can be used as the replace function chooses.
 
