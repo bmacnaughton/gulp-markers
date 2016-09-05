@@ -223,13 +223,15 @@ I now use `gulp-markers` to insert version numbers and licenses, update dates in
 
 The core code for the Transform streams is taken from [gulp-html-replace](https://github.com/VFK/gulp-html-replace), with a only a few modifications, so the logic is better tested than it otherwise would be.
 
+There is now a basic [recipes](./RECIPES.md) document. It wil grow over time.
+
 ### Why not use gulp-markers? ##
 
 You have to write your own regex expressions and replacement functions. It's not as automatic for many common use cases as more specialized tools like [gulp-html-replace](https://github.com/VFK/gulp-html-replace).
 
 Though I use it for my projects, it's received very little real-world use; it's very early. It's the first open-source project of mine that I have intended to be used by others.
 
-The documentation is basic. I need to add a "recipes" document.
+The documentation is basic.
 
 You don't want to run node 4 or greater. If this is an issue for many people I'll make it backward compatible. The feature I find very convenient is arrow-functions, specifically keeping the lexical context. And it seems time to move past node.js 0.12 and io.js - node 4.0 had no major or breaking changes other than native modules (written in C++ and linked against V8).
 
