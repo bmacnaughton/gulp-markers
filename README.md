@@ -223,7 +223,7 @@ I now use `gulp-markers` to insert version numbers and licenses, update dates in
 
 The core code for the Transform streams is taken from [gulp-html-replace](https://github.com/VFK/gulp-html-replace), with a only a few modifications, so the logic is better tested than it otherwise would be.
 
-There is now a basic [recipes](./RECIPES.md) document. It wil grow over time.
+There is now a basic [recipes](./docs/RECIPES.md) document. It wil grow over time.
 
 ### Why not use gulp-markers? ##
 
