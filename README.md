@@ -1,4 +1,4 @@
-# gulp-markers [![Travis][travis-image]][travis-url] [![AppVeyor][appveyor-image]][appveyor-url] [![Coverage Status][coveralls-image]][coveralls-url]
+# gulp-markers [![Travis][travis-image]][travis-url] [![AppVeyor][appveyor-image]][appveyor-url] [![Coverage Status][coveralls-image]][coveralls-url][Dependency Status][depstat-image]][depstat-url]
 
 ## What does gulp-markers do? ##
 
@@ -221,7 +221,7 @@ I started using [gulp-html-replace](https://github.com/VFK/gulp-html-replace) an
 
 I now use `gulp-markers` to insert version numbers and licenses, update dates in copyright notices, insert css files, insert JavaScript files, and insert dynamic lists of files captured by [gulp-filenames](https://github.com/johnydays/gulp-filenames). All into HTML, JavaScript, Python, and PHP files.
 
-The core code for the Transform streams is taken from [gulp-html-replace](https://github.com/VFK/gulp-html-replace), with a only a few modifications, so the logic is better tested than it otherwise would be.
+The core code for the Transform streams is taken from [gulp-html-replace](https://github.com/VFK/gulp-html-replace), with a only a few modifications, so the logic is better tested than it otherwise would be. gulp-markers correctly handles both buffers and streams; with streams it reads the entire file so there is no chance of missing a pattern that crosses chunks.
 
 There is now a basic [recipes](./docs/RECIPES.md) document. It wil grow over time.
 
@@ -229,7 +229,7 @@ There is now a basic [recipes](./docs/RECIPES.md) document. It wil grow over tim
 
 You have to write your own regex expressions and replacement functions. It's not as automatic for many common use cases as more specialized tools like [gulp-html-replace](https://github.com/VFK/gulp-html-replace).
 
-Though I use it for my projects, it's received very little real-world use; it's very early. It's the first open-source project of mine that I have intended to be used by others.
+While no issues have been reported it isn't one of the most popular packages; it hasn't been vetted by wholesale adoption. It's also the first open-source project of mine that I have intended to be used by others.
 
 The documentation is basic.
 
@@ -260,3 +260,5 @@ To Vladimir Kucherenko for [gulp-html-replace](https://github.com/VFK/gulp-html-
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/wcnq48a8tpdty4gk?svg=true
 [coveralls-url]: https://coveralls.io/github/bmacnaughton/gulp-markers?branch=master
 [coveralls-image]: https://coveralls.io/repos/github/bmacnaughton/gulp-markers/badge.svg?branch=master
+[depstat-url]: https://david-dm.org/bmacnaughton/gulp-markers
+[depstat-image]: https://david-dm.org/bmacnaughton/gulp-markers.svg
