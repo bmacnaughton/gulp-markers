@@ -1,4 +1,4 @@
-# gulp-markers [![Travis][travis-image]][travis-url] [![AppVeyor][appveyor-image]][appveyor-url] [![Coverage Status][coveralls-image]][coveralls-url][Dependency Status][depstat-image]][depstat-url]
+# gulp-markers [![Travis][travis-image]][travis-url] [![AppVeyor][appveyor-image]][appveyor-url] [![Coverage Status][coveralls-image]][coveralls-url] [![Dependency Status][depstat-image]][depstat-url]
 
 ## What does gulp-markers do? ##
 
