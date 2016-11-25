@@ -217,11 +217,11 @@ I used a number of the many gulp-replace solutions that already exist and yet fo
 
 `gulp-markers` replaces all of the previous tools I was using; it might be able to do the same for you. It also maps almost directly (there is one additional argument) to the JavaScript string replace function so it is familiar if you have used JavaScript regular expressions.
 
+`gulp-markers` correctly handles both buffers and streams; with streams it reads the entire file so there is no chance of missing a pattern that crosses chunks. The core code is derived from [gulp-html-replace](https://github.com/VFK/gulp-html-replace), with minor modifications to read the entire stream, so the logic is better tested than it otherwise would be.
+
 I started using [gulp-html-replace](https://github.com/VFK/gulp-html-replace) and found it quite useful for many cases, as well as being a very nicely constructed package with excellent testing. But I had situations where I wanted to insert dynamically configured filenames (optionally concatenated and minified) into HTML files and PHP files. And I wanted to encode additional information into the markers so the insertion functions could be as general as possible.
 
 I now use `gulp-markers` to insert version numbers and licenses, update dates in copyright notices, insert css files, insert JavaScript files, and insert dynamic lists of files captured by [gulp-filenames](https://github.com/johnydays/gulp-filenames). All into HTML, JavaScript, Python, and PHP files.
-
-The core code for the Transform streams is taken from [gulp-html-replace](https://github.com/VFK/gulp-html-replace), with a only a few modifications, so the logic is better tested than it otherwise would be. gulp-markers correctly handles both buffers and streams; with streams it reads the entire file so there is no chance of missing a pattern that crosses chunks.
 
 There is now a basic [recipes](./docs/RECIPES.md) document. It wil grow over time.
 
