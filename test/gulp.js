@@ -58,6 +58,13 @@ describe('gulp mode - testing markers', function() {
         should.equal(matchCount, 3, 'verify number of matches');
     });
 
+    it('should be able to use getMatches(tag, file) correctly', function() {
+        var files = markers.m[tag].files;
+        Object.keys(files).forEach(function(f) {
+            should.deepEqual(files[f], markers.getMatches(tag, f), 'verify getMatches() result');
+        });
+    })
+
     it('find should not change the file', function() {
         var input = fs.readFileSync(path.resolve(src), 'utf8');
         var output = fs.readFileSync(path.resolve(path.join(dest, path.basename(src))), 'utf8');
