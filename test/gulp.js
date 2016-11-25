@@ -51,11 +51,10 @@ describe('gulp mode - testing markers', function() {
         should.exist(files[path.resolve(src)], 'verify correct file');
         var matchCount = 0;
         // for each file hash count the matches for each regex hash
+
         Object.keys(files).forEach(function(f) {
-            Object.keys(files[f]).forEach(r => {
-                matchCount += files[f][r].length;
-            })
-        })
+            matchCount += files[f].length;
+        });
         should.equal(matchCount, 3, 'verify number of matches');
     });
 
