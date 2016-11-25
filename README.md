@@ -215,7 +215,7 @@ I used a number of the many gulp-replace solutions that already exist and yet fo
 
 ### Why use gulp-markers? ##
 
-`gulp-markers` replaces all of the previous tools I was using; it might be able to do the same for you.
+`gulp-markers` replaces all of the previous tools I was using; it might be able to do the same for you. It also maps almost directly (there is one additional argument) to the JavaScript string replace function so it is familiar if you have used JavaScript regular expressions.
 
 I started using [gulp-html-replace](https://github.com/VFK/gulp-html-replace) and found it quite useful for many cases, as well as being a very nicely constructed package with excellent testing. But I had situations where I wanted to insert dynamically configured filenames (optionally concatenated and minified) into HTML files and PHP files. And I wanted to encode additional information into the markers so the insertion functions could be as general as possible.
 
