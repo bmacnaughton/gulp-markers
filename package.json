@@ -1,6 +1,6 @@
 {
   "name": "gulp-markers",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "find and transform markers in gulp file streams",
   "main": "./lib/index.js",
   "scripts": {
