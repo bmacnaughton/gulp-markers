@@ -2,7 +2,7 @@
 
 ## What does gulp-markers do? ##
 
-`gulp-markers` finds and/or replaces patterns (markers) in any kind of source file. It can be used to insert specific `<script>` tags, update copyright notices, insert headers, remove inline test code, etc. And because it uses regular expressions to find and transform markers in gulp file streams it works on any type of source file. Your markers are defined by you using standard JavaScript regular expressions and your transforms are specified by a string or function (mirroring JavaScript's  `String.prototype.replace()`). Both the regular expressions and the replacement are defined by the user. `gulp-markers` is just a framework; it does nothing more.
+`gulp-markers` finds and/or replaces patterns (markers) in any kind of source file. It can be used to insert specific `<script>` tags, update copyright notices, insert headers, remove inline test code, etc. And because it uses regular expressions to find and transform markers in gulp file streams it works on any type of source file. Your markers are defined by you using standard JavaScript regular expressions and your transforms are specified by a string or function (mirroring JavaScript's  `String.prototype.replace()`). Both the regular expressions and the replacement are defined by the user. `gulp-markers` is just a thin wrapper around `RegExp.replace()` so it works within the gulp framework.
 
 ## Table of contents
 * [Getting Started with Examples](#getting-started)
