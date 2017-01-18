@@ -56,7 +56,7 @@ gulp.task('html-file-task', function() {
 
 #### Making the marker replace function more generic
 
-With a small tweak to the regex and the replacement function this can handle insertion of multiple categories of script files. Change the regex to capture some groups, most importantly the text following "@insert:". That can be used to determine what js files to insert. It is also capturing whitespace so it can align the output. The patterns captured by the groups appear after the first two arguments, context and match.
+With a small tweak to the regex and the replacement function this can handle insertion of multiple categories of script files. Change the regex to capture some groups, most importantly the text following "@insert:". That can be used to determine what js files to insert. It is also capturing whitespace so it can align the output. The patterns captured by the groups appear after the first two arguments, context and match. (The arguments following context correspond directly to the those passed to RegExp.replace. See API below for more details.)
 
 ```javascript
 var markers = new Markers();
@@ -71,6 +71,7 @@ markers.addMarker({
     tag: 'js-insertions',
     //    1    2                    3
     re: /(\n?)([ \t]*)<!-- @insert:([A-Za-z0-9-]+) -->/,
+    //                                1        2           3
     replace: function(context, match, newline, whitespace, id) {
         if (!jsFiles[id]) {
             // no match so don't change anything
