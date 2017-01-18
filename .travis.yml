@@ -1,4 +1,5 @@
 language: node_js
+# run against first and most recent active LTS versions
 node_js:
   - "4.2.0"
   - "4"
