@@ -2,7 +2,9 @@
 
 ## What does gulp-markers do? ##
 
-`gulp-markers` finds and/or replaces patterns (markers) in any kind of source file. It can be used to insert specific `<script>` tags, update copyright notices, insert headers, remove inline test code, etc. And because it uses regular expressions to find and transform markers in gulp file streams it works on any type of source file. Your markers are defined by you using standard JavaScript regular expressions and your transforms are specified by a string or function (mirroring JavaScript's  `String.prototype.replace()`). Both the regular expressions and the replacement are defined by the user. `gulp-markers` is just a thin wrapper around `RegExp.replace()` so it works within the gulp framework.
+`gulp-markers` finds and/or replaces patterns (markers) in any kind of source file. It is a thin wrapper around JavaScript's RegExp function. It can be used to insert specific `<script>` tags, update copyright notices, insert headers, remove inline test code, i.e., anything that can be done with regular expressions. And because it uses regular expressions to find and transform markers in gulp file streams it works on any type of source file.
+
+You define your own markers using JavaScript regular expressions; you specify your transforms with a string or function (like JavaScript's  `String.prototype.replace()`). `gulp-markers` adds a context argument to the replace function so it can be made very generic. Think of `gulp-markers` as `RegExp.replace()` for the gulp file streams.
 
 ## Table of contents
 * [Getting Started with Examples](#getting-started)
@@ -21,7 +23,7 @@ npm install --save gulp-markers
 
 #### Getting started
 
-Put a marker in a file. This example uses a marker in an HTML file. I usually make markers look like comments for the file type so editors don't complain about them. But it's not a requirement - you define them.
+Put a marker in a file. This example uses a marker in an HTML file. I usually make markers look like comments for the file type so editors don't complain about them. But it's not a requirement - you define your markers.
 ```html
 <!-- @insert:js-vendor -->
 ```
@@ -184,7 +186,7 @@ The context can be used as the replace function chooses.
 
 ##### opts
 
-The opts argument is optional. If present, the options are applied to this marker. The only option currently implemented is `data`. It allows the caller to store any arbitrary data so it is available to the replace function.
+The opts argument is optional. If present, the options are applied to this marker. The only option currently implemented is `data`. It allows the caller to store any arbitrary data so it is available to the replace function via the `context` argument.
 
 <h4><b><code>.addMarkers(array)</code></b></h4>
 
@@ -192,7 +194,7 @@ adds an array of markers. Each element is an object that defines a marker as des
 
 <h4><b><code>.findMarkers(opts)</code></b></h4>
 
-returns a transform stream. No opts are currently implemented. The filenames in which the markers were found can be fetched.
+returns a transform stream. No opts are currently implemented. The filenames in which the markers were found can be fetched using `getFilesForMarker()`.
 
 <h4><b><code>.replaceMarkers(opts)</code></b></h4>
 
@@ -204,7 +206,7 @@ returns an array filled with all marker tags.
 
 <h4><b><code>.getFilesForMarker(tag)</code></b></h4>
 
-returns an array of filenames in which the marker defined by `tag` was found. The filenames are in the form returned by `path.resolve()`. Note - The `findMarkers` transform must be executed in order to capture the files in which matches occur.
+returns an array of filenames in which the marker defined by `tag` was found. The filenames are in the form returned by `path.resolve()`. Note - The `findMarkers` transform must be executed in order to capture the files in which matches occur; `replaceMarkers()` does not yet capture the files.
 
 ## A little background
 
@@ -224,7 +226,7 @@ I started using [gulp-html-replace](https://github.com/VFK/gulp-html-replace) an
 
 I now use `gulp-markers` to insert version numbers and licenses, update dates in copyright notices, insert css files, insert JavaScript files, and insert dynamic lists of files captured by [gulp-filenames](https://github.com/johnydays/gulp-filenames). All into HTML, JavaScript, Python, and PHP files.
 
-There is now a basic [recipes](./docs/RECIPES.md) document. It wil grow over time.
+There is now a basic [recipes](./docs/RECIPES.md) document. It wil grow over time. Contributions are welcome.
 
 ### Why not use gulp-markers? ##
 
@@ -232,9 +234,7 @@ You have to write your own regex expressions and replacement functions. It's not
 
 While no issues have been reported it isn't one of the most popular packages; it hasn't been vetted by wholesale adoption. It's also the first open-source project of mine that I have intended to be used by others.
 
-The documentation is basic.
-
-You don't want to run node 4 or greater. If this is an issue for many people I'll make it backward compatible. The feature I find very convenient is arrow-functions, specifically keeping the lexical context. And it seems time to move past node.js 0.12 and io.js - node 4.0 had no major or breaking changes other than native modules (written in C++ and linked against V8).
+You don't want to run node 4 or greater. If this is an issue for many people I'll make it backward compatible. The feature I find very convenient is arrow-functions, specifically keeping the lexical context. And it seems time to move past node.js 0.12 and io.js.
 
 ### Design goals for gulp-markers ###
 
